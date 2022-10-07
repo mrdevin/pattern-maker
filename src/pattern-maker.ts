@@ -1,6 +1,11 @@
-import { html, css, LitElement } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
-import { HexTile } from './hex-tile'
+import { html, css, LitElement } from 'lit';
+import { customElement, property } from 'lit/decorators.js';
+import { ref, createRef } from 'lit/directives/ref.js';
+
+import { HexTile } from './hex-tile';
+import  './settings-modal';
+import  './sf-dropdown';
+import  './sf-switch';
 import { registerSW } from 'virtual:pwa-register';
 
 @customElement('pattern-maker')
@@ -27,6 +32,7 @@ export class PatternMaker extends LitElement {
       box-sizing: border-box;
       overflow: hidden;
       padding: 0;
+      margin-top: 80px
     }
 
     main {
@@ -35,14 +41,30 @@ export class PatternMaker extends LitElement {
     }
 
     header {
+      position: relative;
       height: 80px;
       width: 100vw;
       background-color: var(--primary-color);
       border-bottom: 3px solid var(--shadow-color);
       position: fixed;
       top: 0;
-      display: block;
+      display: flex;
+      flex-wrap: nowrap;
+      flex-direction: row;
       z-index: 100;
+      align-items: center;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    sf-dropdown a:hover,
+    sf-dropdown a[selected] {
+      background-color: var(--shadow-color);
+      color: var(--highlight-color);
+    }
+
+    sf-dropdown a i {
+      font-style: normal;
     }
 
     hex-tile {
@@ -53,6 +75,10 @@ export class PatternMaker extends LitElement {
     button[active]{
       background-color: var(--shadow-color);
       color: var(--highlight-color);
+    }
+
+    .gridSettings {
+      margin-left: auto;
     }
 
     .row {
@@ -66,6 +92,30 @@ export class PatternMaker extends LitElement {
     .row:nth-of-type(2n){
       position: relative;
       left: calc(0px  - var(--hex-calc-size)/4);
+    }
+
+    a[name="Oriole Gold"] i {
+      color: rgb(257, 252, 14);
+    }
+    a[name="Sunset Orange"] i {
+      color: rgb(252, 85, 33);
+    }
+    a[name="Burgundy Velvet"] i {
+      color: rgb(147,1,1);
+    }
+    a[name="Bullfinch Pink"] i {
+      color: rgb(222, 133, 165);
+    }
+    a[name="Peacock Blue"] i {
+      color: rgb(66, 160, 236);
+    }
+    a[name="Starling Blue"] i {
+      color: rgb(26, 63, 169);
+    }
+    a[name="Forest Green"] i {
+      color: rgb(30, 112, 22);
+    }
+
   `]
 
   constructor(){
@@ -78,9 +128,10 @@ export class PatternMaker extends LitElement {
     })
   }
 
-
   firstUpdated() {
     registerSW({ immediate: true });
+    /* this.currentColor */
+    /* console.log("🚀 ~ file: pattern-maker.ts ~ line 137 ~ PatternMaker ~ firstUpdated ~ this.currentColor", this.currentColor.color) */
   }
 
   /**
@@ -97,25 +148,114 @@ export class PatternMaker extends LitElement {
 
   @property({ type: Array })
   colors = [
-    'rgb(26, 63, 169)',
-    'rgb(147,1,1)',
-    'rgb(30, 112, 22)',
-    'rgb(252, 85, 33)',
-    'rgb(257, 252, 14)',
-    'rgb(66, 160, 236)',
-    'rgb(222, 133, 165)']
+    {name: 'Oriole Gold', color: 'rgb(257, 252, 14)'},
+    {name: 'Sunset Orange', color: 'rgb(252, 85, 33)'},
+    {name: 'Burgundy Velvet', color: 'rgb(147,1,1)'},
+    {name: 'Bullfinch Pink', color: 'rgb(222, 133, 165)'},
+    {name: 'Peacock Blue', color: 'rgb(66, 160, 236)'},
+    {name: 'Starling Blue', color: 'rgb(26, 63, 169)'},
+    {name: 'Forest Green', color: 'rgb(30, 112, 22)'}
+  ]
+
+  @property({type: Object})
+  currentColor = this.colors[2];
+
+  @property({ type: String})
+  currentType = 'pointed'
+
+  @property({ type: Array })
+  selectedTiles = [];
 
   @property({ type: Boolean })
   hideGrid = false
 
-  toggleHideGrid(){
-    this.hideGrid = !this.hideGrid;
+  @property({ type: Boolean })
+  hideGridSettings = true;
+
+  setColor(colorPosition: number){
+    this.currentColor = this.colors[colorPosition];
+    this.updateSelectedTiles();
+  }
+
+  updateType(event: any){
+    this.currentType = event.target.active ? 'pointed':'flat';
+    this.updateSelectedTiles();
+  }
+
+  toggleGridSetting(){
+    this.hideGridSettings = !this.hideGridSettings;
+  }
+
+  deselect(){
+    this.selectedTiles.forEach((tile)=>{
+      tile.selected = false
+    })
+    this.selectedTiles = [];
+  }
+
+  removeFromSelected(tile){
+    const tileIndex = this.selectedTiles.indexOf(tile)
+    console.log("🚀 ~ file: pattern-maker.ts ~ line 197 ~ PatternMaker ~ removeFromSelected ~ tileIndex", tileIndex)
+    if (tileIndex > -1) {
+      this.selectedTiles.splice(tileIndex, 1);
+      this.selectedTiles = this.selectedTiles.slice();
+      console.log("🚀 ~ file: pattern-maker.ts ~ line 201 ~ PatternMaker ~ removeFromSelected ~ .splice(tileIndex, 1)", this.selectedTiles)
+    }
+  }
+
+  selectTile(event: any){
+    if(event.detail.metakey){
+      this.selectedTiles.push(event.target);
+    }else{
+      this.deselect();
+      this.selectedTiles.push(event.target);
+    }
+
+    event.target.selected = !event.target.selected;
+    if (!event.target.selected){
+      this.removeFromSelected(event.target);
+    }
+    event.target.active = event.detail.metakey && event.target.active  ? true : !event.target.active;
+
+    if(event.target.active){
+      event.target.type = this.currentType;
+      event.target.color = this.currentColor.color;
+    }else{
+      this.deselect();
+    }
+  }
+
+  updateSelectedTiles(){
+    this.selectedTiles.forEach((tile) => {
+      if(tile.selected){
+        tile.type = this.currentType;
+        tile.color = this.currentColor.color;
+      }
+    })
+  }
+
+
+  toggleHideGrid(event: any){
+    this.hideGrid = event.detail.hideGrid;
+  }
+
+  isSelected(ref){
+    console.log("🚀 ~ file: pattern-maker.ts ~ line 239 ~ PatternMaker ~ isSelected ~ ref", ref)
+
+    this.selectedTiles.includes(ref);
   }
 
   hexColumns(){
     const hexTempCols = [];
     for (var j = 0; j < this.columns; j++) {
-      hexTempCols.push(html`<hex-tile ?hideGrid="${this.hideGrid}" @tileClick="${this.toggle}"></hex-tile>`);
+      const tileRef = createRef();
+
+      hexTempCols.push(html`
+        <hex-tile
+          ${ref(tileRef)}
+          ?hideGrid="${this.hideGrid}"
+          @tileClick="${this.selectTile}">
+        </hex-tile>`);
     }
     return hexTempCols;
   }
@@ -128,76 +268,63 @@ export class PatternMaker extends LitElement {
     return hexTemplate;
   }
 
-  toggle(event: any){
-    event.preventDefault();
-    event.stopPropagation();
-    if (!event.target.active){
-      this.toggleType = 'active';
+  colorList(){
+    const colorListTemplate = [];
+    for (var i = 0; i < this.colors.length; i++) {
+      let index = i;
+      colorListTemplate.push(html`<a
+        @click="${() => { this.setColor(index); }}"
+        ?selected="${this.colors[i] === this.currentColor}"
+        name="${this.colors[i].name}">
+          <i>⬢</i>${this.colors[i].name}
+        </a>`)
     }
-    switch ((this.toggleType)) {
-      case 'color':
-        const currentColor = event.target.color;
-        const place = this.colors.indexOf(currentColor);
-        let newPlace = place + 1;
-        if (newPlace >= this.colors.length){
-          newPlace = 0;
-        }
-        event.target.color = this.colors[newPlace];
-        break;
-      case 'type':
-        const currentType = event.target.type;
-        event.target.type = currentType === 'flat' ? 'pointed': 'flat';
-        break;
-
-      default:
-        event.target.active = !event.target.active;
-
-        if (!event.target.active){
-          event.target.color = this.colors[0];
-          event.target.type = 'pointed';
-        }
-
-        break;
-    }
-
+    return colorListTemplate;
   }
 
   updatePadding(event: any){
-    const rangeValue = event.target.value;
+    const rangeValue = event.detail.padding;
     this.style.setProperty('--hex-padding', `${rangeValue}px`)
   }
 
   updateColumns(event: any) {
-    this.columns = event.target.value;
+    this.columns = event.detail.columns;
     this.style.setProperty("--column-count", this.columns.toString());
 
   }
 
   updateRows(event: any) {
-    this.rows = event.target.value;
+    this.rows = event.detail.rows;
   }
 
   render() {
     return html`
       <header>
 
-        <input name="columns" type="range" min="3" value="${this.columns}" max="30" @input="${this.updateColumns}"/>
-        <input name="rows" type="range" min="2" value="${this.rows}" max="60" @input="${this.updateRows}"/>
-        <input name="spacing" type="range" min="0" value="4" max="40" @input="${this.updatePadding}"/>
-        <button @click="${()=>{this.toggleType = 'active'}}" ?active="${this.toggleType === 'active'}">Toggle Active</button>
-        <button @click="${()=>{this.toggleType = 'color'}}" ?active="${this.toggleType === 'color'}">Toggle Color</button>
-        <button @click="${()=>{this.toggleType = 'type'}}" ?active="${this.toggleType === 'type'}">Toggle Type</button>
-        <button @click="${this.toggleHideGrid}" ?active="${this.hideGrid}">Toggle Grid</button>
+        <sf-dropdown btncolor="${this.currentColor.color}" title="Select Color">
+          ${this.colorList()}
+        </sf-dropdown>
+
+        <sf-switch ?active="${this.currentType === 'pointed'}" @activeUpdated="${this.updateType}"></sf-switch>
+
+        <button
+          class="gridSettings"
+          name="Grid Settings"
+          @click="${this.toggleGridSetting}">
+            ⚙
+        </button>
+        <settings-modal
+          ?hidden="${this.hideGridSettings}"
+          @toggleHideGrid="${this.toggleHideGrid}"
+          @updatePadding="${this.updatePadding}"
+          @updateColumns="${this.updateColumns}"
+          @updateRows="${this.updateRows}">
+        </settings-modal>
+
       </header>
       <main>
         ${this.hexGrid()}
       </main>
     `
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'pattern-maker': PatternMaker
   }
 }

@@ -24,13 +24,20 @@ export class HexTile extends LitElement {
       cursor: pointer;
     }
 
+    @keyframes marchingAnts {
+      from {stroke-dashoffset: 0%;}
+      to {stroke-dashoffset: 100%;}
+    }
+
+
+
     svg:not(:root) {
       overflow: visible;
     }
   `
 
   @property({ type: String })
-  color = "rgb(34, 34, 126)";
+  color = "rgb(26, 63, 169)";
 
   @property({ type: String })
   type = "pointed" || "flat";
@@ -46,22 +53,51 @@ export class HexTile extends LitElement {
 
   getStrokeColor(){
     if (this.hideGrid) return 'transparent';
+    if (this.selected) return '#008bf8';
     return !this.active ? 'gray' : 'transparent'
   }
 
-  fireClick(){
-    const event = new Event('tileClick');
+  getDashes(){
+    if (this.selected){
+      return 'stroke-dasharray: 15 8; animation:  20s infinite normal marchingAnts linear; '
+    }
 
-    // Dispatch the event.
-    this.dispatchEvent(event);
+    return '';
+  }
+
+  getStrokeWidth(){
+    if (this.selected ) {
+      return '10px';
+    }
+
+    if(this.active && !this.selected){
+      return '0px';
+    }
+
+    return '2px';
+
+  }
+
+  fireClick(event){
+
+    const options = {
+      detail: { metakey: event.metaKey },
+      bubbles: true,
+      composed: true
+    };
+    this.dispatchEvent(new CustomEvent('tileClick', options));
   }
 
   render() {
     return html`
       <svg  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 294.5 340" style="enable-background:new 0 0 294.5 340;" xml:space="preserve">
         <style type="text/css">
-          .st0{fill:${ this.active ? this.color : 'transparent'}; stroke:${this.getStrokeColor()};
-          stroke-width: ${!this.active ? '2px' : '0'};  }
+          .st0{
+            fill:${ this.active ? this.color : 'transparent'};
+            stroke:${this.getStrokeColor()}
+            stroke-width: ${ this.getStrokeWidth() }
+            ${ this.getDashes() }
+          }
           .st1{opacity:0.5;fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};}
           .st2{opacity:0.375;fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};}
           .st3{opacity:0.7;fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};}
