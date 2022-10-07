@@ -1,0 +1,16 @@
+declare module '*.css';
+declare module '*.js';
+declare module '*.jpg';
+declare module '*.jpg?url';
+declare module '*.jpeg';
+declare module '*.jpeg?url';
+declare module '*.webp';
+declare module '*.webp?url';
+declare module '*.glb';
+declare module '*.glb?url';
+declare module '*.mp4';
+declare module '*.mp4?url';
+declare module '*.webm';
+declare module '*.webm?url';
+declare module '*.vtt';
+declare module '*.vtt?url';

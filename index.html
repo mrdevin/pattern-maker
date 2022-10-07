@@ -1,10 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/src/favicon.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + Lit App</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="Pattern Maker for Schnauze Fabrik Hexagonal Wall Tiles">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pattern Maker - Schnauze Fabrik</title>
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="https://schnauze-fabrik.app/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Pattern Maker for Schnauze Fabrik Hexagonal Wall Tiles">
+    <meta property="og:description" content="Build your design virtually & experiment with all th possibilities.">
+    <meta property="og:image" content="https://schnauze-fabrik.app/assets/apple-touch-icon-180x180.png">
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta property="twitter:domain" content="schnauze-fabrik.app">
+    <meta property="twitter:url" content="https://schnauze-fabrik.app/">
+    <meta name="twitter:title" content="Pattern Maker for Schnauze Fabrik Hexagonal Wall Tiles">
+    <meta name="twitter:description" content="Build your design virtually & experiment with all th possibilities.">
+    <meta name="twitter:image" content="https://schnauze-fabrik.app/assets/apple-touch-icon-180x180.png">
+
+    <meta name="theme-color" content="#000000">
+    <style>
+      /* :root,
+      html,
+      html * {
+        --primary-color: hsla(var(--primary-color-hue, 50), var(--primary-color-saturation, 100%), var(--primary-color-luminance, 50%), var(--primary-color-alpha, 1));
+        --logo-secondary-fill: var(--primary-color);
+        --highlight-color-alpha: 1;
+        --highlight-color: rgba(239, 229, 169, var(--highlight-color-alpha));
+        --shadow-color-alpha: 1;
+        --shadow-color: rgba(40, 40, 40, var(--shadow-color-alpha));
+      } */
+
+      body,
+      html {
+        background-color: var(--highlight-color);
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 20px;
+        margin: 0;
+        padding: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+    </style>
     <script type="module" src="/src/pattern-maker.ts"></script>
   </head>
   <body>
