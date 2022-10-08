@@ -1,6 +1,6 @@
 import { InlineModal } from './inline-modal';
 export declare class SettingsModal extends InlineModal {
-    static styles: (import("lit").CSSResult | import("lit").CSSResult[])[];
+    static get styles(): import("lit").CSSResult;
     constructor();
     rows: number;
     columns: number;

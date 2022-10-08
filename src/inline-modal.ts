@@ -4,7 +4,7 @@ import { customElement, property } from 'lit/decorators.js';
 @customElement('inline-modal')
 export class InlineModal extends LitElement {
 
-  static styles = [css`
+  static get styles(){ return css`
     :host {
       position: absolute;
       /* display: flex; */
@@ -29,7 +29,7 @@ export class InlineModal extends LitElement {
     :host([hidden]){
       display: none;
     }
-  `]
+  `}
 
   @property({ type: Boolean })
   hidden = true;

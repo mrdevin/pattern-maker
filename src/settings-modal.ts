@@ -4,7 +4,8 @@ import { InlineModal } from './inline-modal';
 
 @customElement('settings-modal')
 export class SettingsModal extends InlineModal {
-  static styles = [super.styles, css`
+  static get styles(){ return  css`
+  ${super.styles}
     :host {
       padding: 8px;
     }
@@ -19,7 +20,7 @@ export class SettingsModal extends InlineModal {
       margin-bottom: .8em;
       width: 100%;
     }
-  `]
+  `}
   constructor(){
     super();
   }

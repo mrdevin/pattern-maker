@@ -29,7 +29,7 @@ export default defineConfig({
       }
     }),
     buildStatistics({
-      projectName: 'schnauze-fabrik',
+      projectName: 'Pattern Maker - schnauze-fabrik',
     }),
     brotli(),
     visualizer(),
@@ -45,7 +45,7 @@ export default defineConfig({
     imagemin(),
     vitePluginFaviconsInject('./src/img/logo.svg',
       {
-        appName: 'Schnauze Fabrik',
+        appName: 'Pattern Maker ',
         appDescription: 'Design your SPACE with DIY 3D paper Skulpture',
         developerName: 'MrDevin',
         developerURL: null,
@@ -55,21 +55,12 @@ export default defineConfig({
         theme_color: '#fff'
       }
     ),
-    ViteRadar({
-      // Google Analytics tag injection
-      analytics: {
-        id: 'G-WKRSREQMZ0',
-      },
-    }),
+
 
   ],
   build: {
     sourcemap: true,
-    rollupOptions: {
-      manualChunks: {
-        SfModel: ['src/components/sf-model.ts'],
-      }
-    },
+
     manifest: true
   },
   resolve: {
