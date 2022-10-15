@@ -67,6 +67,7 @@ export class SettingsModal extends InlineModal {
       max-width: 88%;
       text-align: center;
       vertical-align: middle;
+      font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
     }
   `}
 

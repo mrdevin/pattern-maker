@@ -122,7 +122,8 @@ export class PmFooter extends LitElement {
       cursor: pointer;
       position: absolute;
       bottom: 35px;
-      left: 10px
+      left: 10px;
+      font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
     }
   `]
 
@@ -239,7 +240,7 @@ export class PmFooter extends LitElement {
         </span>
 
         <footer>
-          <h4>Used Tiles (${this.tiles.length})</h4>
+          <h4>Tiles Used(${this.tiles.length})</h4>
 
           <div ?hidden="${this.allPointedTiles(this.tiles).length === 0}" class="split">
             <h3>Pointed</h3>
