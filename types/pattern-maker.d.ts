@@ -32,6 +32,8 @@ export declare class PatternMaker extends LitElement {
     updateType(event: any): void;
     toggleGridSetting(): void;
     deselect(): void;
+    beforeUnloadListener(event: any): string;
+    checkUnload(): void;
     removeFromSelected(tile: any): void;
     selectTile(event: any): void;
     updateSelectedTiles(param: any): void;
@@ -46,5 +48,6 @@ export declare class PatternMaker extends LitElement {
     toggleSelectMany(): void;
     getActiveTiles(): void;
     renderSelectTxt(): "Selecting Many" | "Select Many";
+    save(): void;
     render(): import("lit").TemplateResult<1>;
 }

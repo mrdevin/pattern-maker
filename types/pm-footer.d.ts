@@ -14,5 +14,6 @@ export declare class PmFooter extends LitElement {
     tilesByColor(tiles: any): Object;
     toggleOpen(): void;
     renderColorCountList(tiles: any): any[];
+    save(): void;
     render(): import("lit").TemplateResult<1>;
 }

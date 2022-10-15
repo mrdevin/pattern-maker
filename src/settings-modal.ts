@@ -13,12 +13,60 @@ export class SettingsModal extends InlineModal {
       display: flex;
       width: 100%;
       flex-wrap: wrap;
+    }
 
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      background: transparent;
+      cursor: pointer;
+      width: 15rem;
+      margin: .5rem 0
+    }
+
+    /***** Chrome, Safari, Opera, and Edge Chromium *****/
+    input[type="range"]::-webkit-slider-runnable-track{
+      background-color: var(--shadow-color);
+      height: 1rem;
+    }
+
+    input[type="range"]::-moz-range-track {
+      background-color: var(--shadow-color);
+      height: 1rem;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none; /* Override default look */
+      appearance: none;
+      margin-top: -9px;
+      background-color: var(--primary-color);
+      border: 3px solid white;
+      height: 1.8rem;
+      width: 1.2rem;
     }
 
     input {
       margin-bottom: .8em;
       width: 100%;
+    }
+
+    button {
+      color: var(--shadow-color);
+      font-weight: bolder;
+      font-size: .6em;
+      display: inline-block;
+      padding: 0.5em 0.75em;
+      background-color: var(--highlight-color);
+      border: 2px solid var(--shadow-color);
+      border-radius: 8px 0px;
+      box-shadow: 2px 2px 0 var(--shadow-color);
+      margin: 0.5em 0px;
+      letter-spacing: 0.05em;
+      text-decoration: none;
+      transition: box-shadow 0.2s linear 0s;
+      max-width: 88%;
+      text-align: center;
+      vertical-align: middle;
     }
   `}
 
@@ -77,7 +125,18 @@ export class SettingsModal extends InlineModal {
   render() {
     return html`
       <label>
-        # Collumns (${this.columns})
+        Spacing
+      </label>
+      <input
+        name="spacing"
+        type="range"
+        min="0"
+        value="4"
+        max="100"
+        @input="${this.updatePadding}"/>
+
+      <label>
+        Columns (${this.columns})
       </label>
       <input
         name="columns"
@@ -88,26 +147,15 @@ export class SettingsModal extends InlineModal {
         @input="${this.updateColumns}"/>
 
       <label>
-        # Rows (${this.rows})
+        Rows (${this.rows})
       </label>
       <input
         name="rows"
         type="range"
-        min="5"
+        min="12"
         value="${this.rows}"
         max="60"
         @input="${this.updateRows}"/>
-
-      <label>
-        Spacing
-      </label>
-      <input
-        name="spacing"
-        type="range"
-        min="0"
-        value="4"
-        max="100"
-        @input="${this.updatePadding}"/>
 
       <button
         @click="${this.toggleHideGrid}"

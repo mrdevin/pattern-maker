@@ -1,6 +1,8 @@
 import { html, css, LitElement } from 'lit';
 import { customElement, property } from 'lit/decorators.js';
 import { ref, createRef } from 'lit/directives/ref.js';
+import html2canvas from 'html2canvas';
+import { saveAs } from 'file-saver';
 
 import { HexTile } from './hex-tile';
 import  './settings-modal';
@@ -238,6 +240,19 @@ export class PatternMaker extends LitElement {
     this.selectedTiles = [];
   }
 
+  beforeUnloadListener (event){
+    event.preventDefault();
+    return event.returnValue = "Are you sure you want to exit, without saving your design?";
+  }
+
+  checkUnload(){
+    if (this.activeTiles.length > 0) {
+      window.addEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
+    } else {
+      window.removeEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
+    }
+  }
+
   removeFromSelected(tile){
     const tileIndex = this.selectedTiles.indexOf(tile)
     if (tileIndex > -1) {
@@ -272,6 +287,7 @@ export class PatternMaker extends LitElement {
 
     requestAnimationFrame(()=>{
       this.getActiveTiles();
+      this.checkUnload();
     });
   }
 
@@ -288,6 +304,7 @@ export class PatternMaker extends LitElement {
       }
     });
     this.getActiveTiles();
+    this.checkUnload();
   }
 
   toggleHideGrid(event: any){
@@ -365,6 +382,19 @@ export class PatternMaker extends LitElement {
     return 'Select Many';
   }
 
+  save(){
+    this.deselect();
+    let hexGrid = this.shadowRoot.querySelector("#main");
+    // @ts-ignore
+    html2canvas(hexGrid).then( (canvas)=>{
+      canvas.toBlob((blob)=>{
+        saveAs(blob, 'Meine-Hexagonal-Design-Schnauze-Fabrik.png');
+        window.removeEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
+
+      })
+    });
+  }
+
   render() {
     return html`
       <header>
@@ -407,10 +437,10 @@ export class PatternMaker extends LitElement {
       </header>
 
 
-      <main>
+      <main id="main">
         ${this.hexGrid()}
       </main>
-      <pm-footer .tiles="${this.activeTiles}">
+      <pm-footer @save="${this.save}" .tiles="${this.activeTiles}">
       </pm-footer>
     `
   }

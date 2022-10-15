@@ -49,7 +49,7 @@ export default defineConfig({
         appDescription: 'Design your SPACE with DIY 3D paper Skulpture',
         developerName: 'MrDevin',
         developerURL: null,
-        lang: 'de',
+        lang: 'en',
         display: "minimal-ui",
         background: '#ffd400',
         theme_color: '#fff'
