@@ -5,9 +5,6 @@ import './sf-switch';
 import './pm-footer';
 export declare class PatternMaker extends LitElement {
     static styles: import("lit").CSSResult[];
-    constructor();
-    updateGridWidth(): void;
-    firstUpdated(): void;
     /**
      * The name to say "Hello" to.
      */
@@ -28,13 +25,16 @@ export declare class PatternMaker extends LitElement {
     hideGrid: boolean;
     hideGridSettings: boolean;
     shouldSelectMany: boolean;
+    constructor();
+    firstUpdated(): void;
+    updateGridWidth(): void;
     setColor(colorPosition: number): void;
     updateType(event: any): void;
     toggleGridSetting(): void;
     deselect(): void;
     removeFromSelected(tile: any): void;
     selectTile(event: any): void;
-    updateSelectedTiles(): void;
+    updateSelectedTiles(param: any): void;
     toggleHideGrid(event: any): void;
     isSelected(ref: any): void;
     hexColumns(): any[];

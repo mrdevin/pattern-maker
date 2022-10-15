@@ -51,7 +51,6 @@ export class InlineModal extends LitElement {
 
   }
 
-
   render() {
     return html`
       <slot></slot>

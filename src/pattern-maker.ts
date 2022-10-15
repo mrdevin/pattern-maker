@@ -354,7 +354,7 @@ export class PatternMaker extends LitElement {
 
         <sf-switch @activeUpdated="${this.updateType}"></sf-switch>
         <button class="selectBtn" @click="${this.toggleSelectMany}">${this.renderSelectTxt()}</button>
-        <button @click="${this.deselect}">Deselect</button>
+        <button @click="${this.deselect}">Deselect All</button>
         <button
           class="gridSettings"
           name="Grid Settings"

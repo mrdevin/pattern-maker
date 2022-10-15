@@ -29,7 +29,21 @@ export class HexTile extends LitElement {
       to {stroke-dashoffset: 100%;}
     }
 
+    @keyframes appear{
+      from {transform: scale(0)}
+      to { transform: scale(1)}
+    }
 
+    /* @keyframes bounce{
+      from {transform: scale(1)}
+      to { transform: scale(1.05)}
+    } */
+
+
+    @keyframes bounce{
+      from {stroke-width: 5px}
+      to {stroke-width: 15px}
+    }
 
     svg:not(:root) {
       overflow: visible;
@@ -57,24 +71,23 @@ export class HexTile extends LitElement {
     return !this.active ? 'gray' : 'transparent'
   }
 
-  getDashes(){
+  getAnimation(){
     if (this.selected){
-      return 'stroke-dasharray: 15 8; animation:  20s infinite normal marchingAnts linear; '
+      return 'stroke-dasharray: 15 8; animation 20s infinite normal marchingAnts linear; '
     }
-
     return '';
   }
 
   getStrokeWidth(){
     if (this.selected ) {
-      return '10px';
+      return '15px';
     }
 
     if(this.active && !this.selected){
       return '0px';
     }
 
-    return '2px';
+    return '5px';
 
   }
 
@@ -92,17 +105,37 @@ export class HexTile extends LitElement {
     return html`
       <svg  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 294.5 340" style="enable-background:new 0 0 294.5 340;" xml:space="preserve">
         <style type="text/css">
-          .st0{
-            fill:${ this.active ? this.color : 'transparent'};
-            stroke:${this.getStrokeColor()}
-            stroke-width: ${ this.getStrokeWidth() }
-            ${ this.getDashes() }
+
+          .st0-wrap {
+            transform-origin: center;
+
           }
-          .st1{opacity:0.5;fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};}
-          .st2{opacity:0.375;fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};}
-          .st3{opacity:0.7;fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};}
+
+          .st0{
+            fill: ${ this.active ? this.color : 'transparent'};
+            stroke: ${this.getStrokeColor()};
+            stroke-width: ${ this.getStrokeWidth() };
+            ${ this.getAnimation() }
+          }
+
+
+          .st1{
+            opacity:0.5;
+            fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};
+          }
+
+          .st2{
+            opacity:0.375;
+            fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};
+          }
+
+          .st3{
+            opacity:0.7;
+            fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};
+          }
+
         </style>
-        <g @click="${this.fireClick}">
+        <g class="st0-wrap" @click="${this.fireClick}">
         <polygon  class="st0" id="hexBg" points="0.2,255.3 147.6,340 294.6,254.8 294.3,84.7 146.9,0 -0.2,85.3 "/>
         <g id="shading" >
           <polygon class="st1" points="0.2,255.3 147.2,170 147.6,340 	"/>
