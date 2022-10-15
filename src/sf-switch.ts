@@ -13,8 +13,14 @@ export class SfSwitch extends LitElement {
       display: grid;
       grid-template-columns: 1fr;
       grid-template-rows: 1fr;
+      cursor: pointer;
+      margin-left: .8em;
+      height: -webkit-fill-available;
     }
 
+    * {
+      box-sizing: border-box;
+    }
 
     :host([active]) .toggle {
       left: calc(100% - 25px);
@@ -26,6 +32,14 @@ export class SfSwitch extends LitElement {
       grid-area: 1/1;
       opacity: 1;
       transition: opacity .4 linear;
+    }
+
+    .label {
+      display: flex;
+      width: 100%;
+      font-size: 12px;
+      margin-top: .38em;
+      font-family: 'Courier New', Courier, monospace;
     }
 
     [hidden]{
@@ -99,6 +113,8 @@ export class SfSwitch extends LitElement {
         <polyline class="st0" points="49.2,224.3 42.5,288.9 49.2,224.3 "/>
         <line class="st0" x1="49.2" y1="224.3" x2="288.8" y2="26.1"/>
       </svg>
+
+      <span class="label">Type</span>
     `
   }
 }

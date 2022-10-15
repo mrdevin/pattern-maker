@@ -7,8 +7,8 @@ export declare class HexTile extends LitElement {
     active: boolean;
     hideGrid: boolean;
     getStrokeColor(): "transparent" | "#008bf8" | "gray";
-    getDashes(): "stroke-dasharray: 15 8; animation:  20s infinite normal marchingAnts linear; " | "";
-    getStrokeWidth(): "10px" | "0px" | "2px";
+    getAnimation(): "stroke-dasharray: 15 8; animation 20s infinite normal marchingAnts linear; " | "";
+    getStrokeWidth(): "15px" | "0px" | "5px";
     fireClick(event: any): void;
     render(): import("lit").TemplateResult<1>;
 }

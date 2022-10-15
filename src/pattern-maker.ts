@@ -41,6 +41,14 @@ export class PatternMaker extends LitElement {
       flex-wrap: wrap;
     }
 
+    .label {
+      display: flex;
+      width: 100%;
+      font-size: 12px;
+      margin-top: .38em;
+      font-family: 'Courier New', Courier, monospace;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -64,6 +72,7 @@ export class PatternMaker extends LitElement {
       align-items: center;
       padding: 10px;
       box-sizing: border-box;
+      align-items: center;
     }
 
     sf-dropdown a:hover,
@@ -72,8 +81,17 @@ export class PatternMaker extends LitElement {
       color: var(--highlight-color);
     }
 
+    sf-dropdown a i,
+    sf-dropdown a span {
+      display: flex;
+      width: max-content;
+    }
+
     sf-dropdown a i {
       font-style: normal;
+      font-size: 2.2em;
+      width:  .5em;
+      margin-right: .5em
     }
 
     hex-tile {
@@ -89,6 +107,9 @@ export class PatternMaker extends LitElement {
     button {
       background-color: transparent;
       border: 0;
+      cursor: pointer;
+      width: min-content;
+      margin-left: .8em;
     }
 
     .row {
@@ -308,7 +329,7 @@ export class PatternMaker extends LitElement {
         @click="${() => { this.setColor(index); }}"
         ?selected="${this.colors[i] === this.currentColor}"
         name="${this.colors[i].name}">
-          <i>⬢</i>${this.colors[i].name}
+          <i>⬢</i><span>${this.colors[i].name}</span>
         </a>`)
     }
     return colorListTemplate;
@@ -353,27 +374,28 @@ export class PatternMaker extends LitElement {
         </sf-dropdown>
 
         <sf-switch @activeUpdated="${this.updateType}"></sf-switch>
-        <button class="selectBtn" @click="${this.toggleSelectMany}">${this.renderSelectTxt()}</button>
-        <button @click="${this.deselect}">Deselect All</button>
+        <button class="headerBtn selectBtn" @click="${this.toggleSelectMany}">${this.renderSelectTxt()}</button>
+        <button class="headerBtn" @click="${this.deselect}">Deselect All</button>
         <button
           class="gridSettings"
           name="Grid Settings"
           @click="${this.toggleGridSetting}">
-            <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+          <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
             viewBox="0 0 850.4 850.4" style="enable-background:new 0 0 850.4 850.4;" xml:space="preserve"
             >
-          <style type="text/css">
-            .st0{fill:#020202;}
-          </style>
-          <g>
-            <path class="st0" d="M713.9,746.5L528.2,639.3l0-214.4l185.7-107.2l136.5,78.8v-17.1l-129.1-74.5l0-214.4L850.4,16V0h-4.5
-              L715.8,75.2L585.6,0h-38.4l155,89.5l0,214.4L516.5,411.1L330.8,303.9l0-214.4L485.8,0h-33.9L323.5,74.2L195,0h-40.8l156.7,90.5
-              l0,214.4L125.2,412.1L0,339.8v15.9l119.8,69.1l0,214.4L0,708.4v16.9l124.1-71.7l185.7,107.2l0,89.5h19.9l0-89.5l185.7-107.2
-              l185.7,107.2v89.5h22.1l0-89.5l127.2-73.4v-19.8L713.9,746.5z M509.1,639.3L323.4,746.5L137.7,639.3l0-214.4l185.7-107.2
-              l185.7,107.2L509.1,639.3z"/>
-            <polygon class="st0" points="96.3,0 61.6,0 0,35.6 0,55.6 	"/>
-          </g>
+            <style type="text/css">
+              .st0{fill:#020202;}
+            </style>
+            <g>
+              <path class="st0" d="M713.9,746.5L528.2,639.3l0-214.4l185.7-107.2l136.5,78.8v-17.1l-129.1-74.5l0-214.4L850.4,16V0h-4.5
+                L715.8,75.2L585.6,0h-38.4l155,89.5l0,214.4L516.5,411.1L330.8,303.9l0-214.4L485.8,0h-33.9L323.5,74.2L195,0h-40.8l156.7,90.5
+                l0,214.4L125.2,412.1L0,339.8v15.9l119.8,69.1l0,214.4L0,708.4v16.9l124.1-71.7l185.7,107.2l0,89.5h19.9l0-89.5l185.7-107.2
+                l185.7,107.2v89.5h22.1l0-89.5l127.2-73.4v-19.8L713.9,746.5z M509.1,639.3L323.4,746.5L137.7,639.3l0-214.4l185.7-107.2
+                l185.7,107.2L509.1,639.3z"/>
+              <polygon class="st0" points="96.3,0 61.6,0 0,35.6 0,55.6 	"/>
+            </g>
           </svg>
+          <span class="label">Grid</span>
         </button>
         <settings-modal
           @toggleHideGrid="${this.toggleHideGrid}"
