@@ -45,7 +45,7 @@ export class HexTile extends LitElement {
   @property({ type: Boolean })
   selected = false;
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, reflect: true })
   active = false;
 
   @property({ type: Boolean })

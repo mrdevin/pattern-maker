@@ -21,9 +21,6 @@ export class SettingsModal extends InlineModal {
       width: 100%;
     }
   `}
-  constructor(){
-    super();
-  }
 
   @property({ type: Number })
   rows = 15;
@@ -36,7 +33,6 @@ export class SettingsModal extends InlineModal {
 
   @property({ type: Boolean })
   hideGrid = false
-
 
   toggleHideGrid() {
     this.hideGrid = !this.hideGrid;
@@ -78,7 +74,6 @@ export class SettingsModal extends InlineModal {
     this.dispatchEvent(new CustomEvent('updateRows', options));
   }
 
-
   render() {
     return html`
       <label>
@@ -87,7 +82,7 @@ export class SettingsModal extends InlineModal {
       <input
         name="columns"
         type="range"
-        min="3"
+        min="5"
         value="${this.columns}"
         max="30"
         @input="${this.updateColumns}"/>
@@ -98,7 +93,7 @@ export class SettingsModal extends InlineModal {
       <input
         name="rows"
         type="range"
-        min="2"
+        min="5"
         value="${this.rows}"
         max="60"
         @input="${this.updateRows}"/>
@@ -111,9 +106,8 @@ export class SettingsModal extends InlineModal {
         type="range"
         min="0"
         value="4"
-        max="40"
+        max="100"
         @input="${this.updatePadding}"/>
-
 
       <button
         @click="${this.toggleHideGrid}"

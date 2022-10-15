@@ -31,11 +31,24 @@ export class InlineModal extends LitElement {
     }
   `}
 
-  @property({ type: Boolean })
+  @property({ type: Boolean, reflect: true })
   hidden = true;
 
-  constructor(){
+  constructor() {
     super();
+    window.addEventListener('keyup', this.closeModal)
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('keypress', this.closeModal);
+    super.disconnectedCallback();
+  }
+
+  closeModal(){
+    requestAnimationFrame(()=>{
+      this.hidden = true;
+    })
+
   }
 
 

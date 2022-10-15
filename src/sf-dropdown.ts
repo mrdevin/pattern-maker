@@ -11,16 +11,18 @@ export class SfDropdown extends LitElement {
     }
 
     .dropbtn {
-      background-color: var(--highlight-color);
-      color: var(--shadow-color);
-      padding: 16px;
+      background-color: transparent;
       font-size: 16px;
-      border: 3px solid var(--shadow-color);
+      border: 0;
+      border-bottom: 5px solid var(--shadow-color);
       cursor: pointer;
     }
 
+    svg {
+      width: 30px;
+      height: auto;
+    }
 
-    /* Dropdown Content (Hidden by Default) */
     .dropdown-content {
       display: none;
       position: absolute;
@@ -30,7 +32,6 @@ export class SfDropdown extends LitElement {
       z-index: 1;
     }
 
-    /* Links inside the dropdown */
      ::slotted(a) {
       color: var(--shadow-color);
       padding: 12px 16px;
@@ -43,11 +44,6 @@ export class SfDropdown extends LitElement {
       display: block;
     }
 
-    /* Change the background color of the dropdown button when the dropdown content is shown */
-    :host(:hover) .dropbtn{
-      background-color: var(--shadow-color);
-      color: var(--highlight-color);
-    }
   `]
 
   @property({ type: Boolean, reflect: true })
@@ -55,6 +51,7 @@ export class SfDropdown extends LitElement {
 
   @property({type: String})
   title = "Dropdown";
+
   @property({type: String})
   btnColor;
 
@@ -68,7 +65,19 @@ export class SfDropdown extends LitElement {
 
   render() {
     return html`
-      <button @click="${this.toggleDD}" class="dropbtn" style="border-color:${this.btnColor}">${this.title}</button>
+      <button @click="${this.toggleDD}" class="dropbtn" style="border-color:${this.btnColor}">
+        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+          viewBox="0 0 850.4 850.4" style="enable-background:new 0 0 850.4 850.4;" xml:space="preserve"
+          >
+        <style type="text/css">
+          .st0{fill:none;stroke:#000000;stroke-width:10;stroke-miterlimit:10;}
+        </style>
+        <circle class="st0" cx="284.9" cy="539.5" r="242"/>
+        <circle class="st0" cx="425.2" cy="300.5" r="242"/>
+        <circle class="st0" cx="566.7" cy="539.5" r="242"/>
+        </svg>
+
+      </button>
       <div class="dropdown-content">
         <slot @click="${this.toggleDD}"><slot>
       </div>
