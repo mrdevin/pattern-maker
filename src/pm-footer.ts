@@ -13,7 +13,6 @@ export class PmFooter extends LitElement {
       width: 100vw;
       border-radius: 10px 10px 0 0;
       background-color: var(--primary-color);
-
       height: 80vh;
       transform: translateY(calc(100% - 25px));
       justify-content: center;
@@ -34,27 +33,27 @@ export class PmFooter extends LitElement {
       display: flex;
       justify-content: center;
       align-items: center;
+      cursor: pointer;
     }
 
      #arrow {
       stroke: rgba(255, 255, 255, 0.5);
-      /* background-color: rgba(255, 255, 255, 0.5); */
-      /* margin: 0 auto 15px; */
       width: 150px;
+      transform: rotateX(0);
+      transition: transform .4s cubic-bezier(.32,.96,1,1.17);
+    }
+
+    :host([open]) #arrow {
+      transform: rotateX(180deg);
     }
 
     :host([open]) {
       transform: translateY(25px);
     }
 
-    :host([open]) #arrow {
-      transform: rotateZ(180deg);
-    }
-
     :host([open]) footer{
       opacity: 1;
       pointer-events: all;
-
     }
 
     footer {
@@ -63,41 +62,40 @@ export class PmFooter extends LitElement {
       pointer-events: none;
       align-self: flex-start;
       margin-top: 40px;
-      /* margin-top: 200px; */
-      /* position: relative; */
       display: flex;
       flex-wrap: wrap;
-      /* overflow: hidden; */
-    }
-
-    footer * {
-      /* display: flex; */
-
+      gap: 10px;
     }
 
     footer .split {
-      width: 50%;
-
+      width: calc(50% - 5px);
+      box-sizing: border-box;
+      /* border-bottom: 1px solid var(--shadow-color); */
     }
 
     footer .color {
       display: grid;
-      grid-template-columns: 4fr 1fr;
+      grid-template-columns: 1.5em 1fr ;
       margin-bottom: 0.5em;
       font-size: .8em;
       margin-bottom: 0.5em;
+      border-bottom: 1px solid var(--shadow-color);
     }
 
+    /* footer .split:first-of-type {
+      border-right: 1px solid var(--shadow-color);
+    } */
+
     footer .split span:nth-of-type(1) {
-      width: 60%;
       display: flex;
-      grid-area: 0 / 1;
+      grid-area: 1 / 2;
+
     }
 
     footer .split span:nth-of-type(2) {
-      width: 40%;
       display: flex;
-      grid-area: 1 / 2;
+      grid-area: 0 / 1;
+      justify-self: center;
     }
 
     footer a, footer h4 {
@@ -121,8 +119,11 @@ export class PmFooter extends LitElement {
       max-width: 88%;
       text-align: center;
       vertical-align: middle;
+      cursor: pointer;
+      position: absolute;
+      bottom: 35px;
+      left: 10px
     }
-
   `]
 
   @property({ type: Boolean, reflect: true })
@@ -240,12 +241,12 @@ export class PmFooter extends LitElement {
         <footer>
           <h4>Used Tiles (${this.tiles.length})</h4>
 
-          <div class="split">
+          <div ?hidden="${this.allPointedTiles(this.tiles).length === 0}" class="split">
             <h3>Pointed</h3>
             ${this.renderColorCountList(this.allPointedTiles(this.tiles))}
           </div>
 
-          <div class="split">
+          <div ?hidden="${this.allFlatTiles(this.tiles).length === 0}" class="split">
             <h3>Flat</h3>
             ${this.renderColorCountList(this.allFlatTiles(this.tiles))}
           </div>

@@ -22,7 +22,6 @@ export class PatternMaker extends LitElement {
       --highlight-color: rgba(239, 229, 169, var(--highlight-color-alpha));
       --shadow-color-alpha: 1;
       --shadow-color: rgba(40, 40, 40, var(--shadow-color-alpha));
-
       --hex-padding: 4px;
       --column-count: 1;
       --available-area: 100vw;
@@ -35,12 +34,15 @@ export class PatternMaker extends LitElement {
       box-sizing: border-box;
       overflow: hidden;
       padding: 0;
-      margin-top: 80px
+      margin-top: 80px;
+      font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
+      background-color: white;
     }
 
     main {
       display: flex;
       flex-wrap: wrap;
+      background-color: white;
     }
 
     .label {
@@ -48,7 +50,7 @@ export class PatternMaker extends LitElement {
       width: 100%;
       font-size: 12px;
       margin-top: .38em;
-      font-family: 'Courier New', Courier, monospace;
+      justify-content: center;
     }
 
     * {
@@ -112,6 +114,7 @@ export class PatternMaker extends LitElement {
       cursor: pointer;
       width: min-content;
       margin-left: .8em;
+      font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
     }
 
     .row {
@@ -206,7 +209,8 @@ export class PatternMaker extends LitElement {
     requestAnimationFrame(() => {
       this.updateGridWidth();
     })
-    window.addEventListener('resize', () => { this.updateGridWidth() })
+    window.addEventListener('resize', () => { this.updateGridWidth() });
+    window.document.body.style.background = 'transparent';
   }
 
   firstUpdated() {

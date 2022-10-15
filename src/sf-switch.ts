@@ -39,13 +39,11 @@ export class SfSwitch extends LitElement {
       width: 100%;
       font-size: 12px;
       margin-top: .38em;
-      font-family: 'Courier New', Courier, monospace;
     }
 
     [hidden]{
       opacity: 0;
     }
-
   `]
 
   @property({ type: Boolean, reflect: true })

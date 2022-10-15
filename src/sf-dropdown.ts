@@ -8,7 +8,6 @@ export class SfDropdown extends LitElement {
     :host {
       position: relative;
       display: inline-block;
-      font-family: 'Courier New', Courier, monospace;
       display: flex;
     }
 
@@ -53,13 +52,13 @@ export class SfDropdown extends LitElement {
       width: 100%;
       font-size: 12px;
       margin-top: .38em;
-      font-family: 'Courier New', Courier, monospace;
+      font-family: inherit;
+      font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
     }
 
     :host([open]) .dropdown-content{
       display: block;
     }
-
   `]
 
   @property({ type: Boolean, reflect: true })

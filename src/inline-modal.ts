@@ -7,10 +7,7 @@ export class InlineModal extends LitElement {
   static get styles(){ return css`
     :host {
       position: absolute;
-      /* display: flex; */
       background-color: var(--highlight-color);
-      /* width: auto; */
-      /* height: auto; */
       min-height: 10px;
       min-width: 10px;
       border: 5px solid var(--highlight-color);
@@ -20,10 +17,6 @@ export class InlineModal extends LitElement {
       bottom: 0;
       left: 50%;
       transform: translateX(-50%) translateY(110%);
-    }
-
-    :host(*) {
-      /* display: flex; */
     }
 
     :host([hidden]){

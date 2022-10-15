@@ -29,22 +29,6 @@ export class HexTile extends LitElement {
       to {stroke-dashoffset: 100%;}
     }
 
-    @keyframes appear{
-      from {transform: scale(0)}
-      to { transform: scale(1)}
-    }
-
-    /* @keyframes bounce{
-      from {transform: scale(1)}
-      to { transform: scale(1.05)}
-    } */
-
-
-    @keyframes bounce{
-      from {stroke-width: 5px}
-      to {stroke-width: 15px}
-    }
-
     svg:not(:root) {
       overflow: visible;
     }

@@ -5,7 +5,7 @@ import { InlineModal } from './inline-modal';
 @customElement('settings-modal')
 export class SettingsModal extends InlineModal {
   static get styles(){ return  css`
-  ${super.styles}
+    ${super.styles}
     :host {
       padding: 8px;
     }
