@@ -49,6 +49,7 @@ export class SfDropdown extends LitElement {
 
     .label {
       display: flex;
+      color: var(--shadow-color);
       width: 100%;
       font-size: 12px;
       margin-top: .38em;

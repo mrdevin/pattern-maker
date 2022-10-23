@@ -114,6 +114,7 @@ export class PatternMaker extends LitElement {
       cursor: pointer;
       width: min-content;
       margin-left: .8em;
+      color: var(--shadow-color);
       font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
     }
 
