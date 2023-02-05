@@ -7,31 +7,8 @@ export class HexTile extends LitElement {
     :host {
       --hex-size: 80px;
       --hex-spacing: 0px;
-      display: flex;
-      padding: 0 var(--hex-spacing) var(--hex-spacing) 0;
-      width: calc(var(--hex-size));
-      height: calc(var(--hex-size) * 1.1547005);
-      box-sizing: border-box;
-      cursor: default;
     }
 
-    svg polygon{
-      display:flex;
-      max-height: 100%;
-    }
-
-    svg polygon {
-      cursor: pointer;
-    }
-
-    @keyframes marchingAnts {
-      from {stroke-dashoffset: 0%;}
-      to {stroke-dashoffset: 100%;}
-    }
-
-    svg:not(:root) {
-      overflow: visible;
-    }
   `
 
   @property({ type: String })

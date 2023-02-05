@@ -4,7 +4,7 @@ import { ref, createRef } from 'lit/directives/ref.js';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
 
-import { HexTile } from './hex-tile';
+import './hex-tile';
 import  './settings-modal';
 import  './sf-dropdown';
 import  './sf-switch';
@@ -205,8 +205,7 @@ export class PatternMaker extends LitElement {
 
   constructor() {
     super();
-    new HexTile;
-    this.style.setProperty("--column-count", this.columns.toString());
+\    this.style.setProperty("--column-count", this.columns.toString());
     requestAnimationFrame(() => {
       this.updateGridWidth();
     })
@@ -400,6 +399,8 @@ export class PatternMaker extends LitElement {
     });
   }
 
+
+
   render() {
     return html`
       <header>
@@ -409,13 +410,19 @@ export class PatternMaker extends LitElement {
         </sf-dropdown>
 
         <sf-switch @activeUpdated="${this.updateType}"></sf-switch>
-        <button class="headerBtn selectBtn" @click="${this.toggleSelectMany}">${this.renderSelectTxt()}</button>
-        <button class="headerBtn" @click="${this.deselect}">Deselect All</button>
+        <button class="headerBtn selectBtn" @click="${this.toggleSelectMany}">
+          ${this.renderSelectTxt()}
+        </button>
+        <button class="headerBtn" @click="${this.deselect}">
+          Deselect All
+        </button>
         <button
           class="gridSettings"
           name="Grid Settings"
           @click="${this.toggleGridSetting}">
-          <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+          <svg version="1.1" id="Layer_1"
+            xmlns="http://www.w3.org/2000/svg"
+            xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
             viewBox="0 0 850.4 850.4" style="enable-background:new 0 0 850.4 850.4;" xml:space="preserve"
             >
             <style type="text/css">
