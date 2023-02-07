@@ -83,8 +83,7 @@ export class SfSwitch extends LitElement {
             stroke-miterlimit:10;
           }
         </style>
-        <image style="display:none;overflow:visible;" width="1242" height="666" xlink:href="../../../schnauze-fabrik/src/img/home/blue-poster.jpg"  transform="matrix(1 0 0 1 -363.5 -133)">
-        </image>
+
         <g>
           <polygon class="st0" points="271.8,30.6 86.6,46.7 13.2,171.4 18.3,230.6 246.9,372.4 479.6,288.4 502.8,235.9 447.9,98 	"/>
           <polyline class="st0" points="13.2,171 257.9,313 502.7,236 	"/>
@@ -102,8 +101,7 @@ export class SfSwitch extends LitElement {
             stroke-miterlimit:10;
           }
         </style>
-        <image style="display:none;overflow:visible;" width="1242" height="693" xlink:href="../../../schnauze-fabrik/src/img/home/pink-poster.jpg"  transform="matrix(1 0 0 1 -370.1501 -229.6504)">
-        </image>
+
         <polygon class="st0" points="28.6,67.6 22.1,120.9 42.5,288.9 340.3,386.4 472.9,262.1 498.5,210.4 383.6,84.1 288.8,25.5
           195.1,29.6 "/>
         <polygon class="st0" points="28.6,67.6 49.2,224.3 365.5,324.1 498.5,210.4 288.8,26.1 "/>

@@ -24,27 +24,31 @@ export const HexTilePolygon = ({ size = 80, column = 0, row = 0, titleType = Tit
   const hexRadius = size / 2;
 
   function hexagonPoints() {
-    const points = [0, 1, 2, 3, 4, 5, 6].map((n, i) => {
+    const points = Array(6).fill(0).map((x, i) => {
       var angle_deg = 60 * i - 30;
       var angle_rad = Math.PI / 180 * angle_deg;
       const xPoint = (hexWidth / 2 + hexRadius * Math.cos(angle_rad));
       const yPoint = hexHeight / 2 + hexRadius * Math.sin(angle_rad)
-      return [xPoint , yPoint];
-    }).map((p) => p.join(','))
-      .join(' ');
+      return `${xPoint}, ${yPoint}`;
+    })
     return points
   }
 
-  function transformations() {
+
+  function translations() {
     const spacingFactor = 90/100
     return `${((hexRadius + hexX) * spacingFactor) - (size)},
             ${((hexRadius + hexY) * spacingFactor) - ((size * 1.8))}`
   }
 
+  function rotations(){
+    return `0, 0, 0`;
+  }
+
   return svg`
     <polygon
-      points="${hexagonPoints()}"
-      transform="translate(${transformations()})"
+      points=" ${hexagonPoints()}"
+      transform="translate(${translations()}), rotate(${rotations()})"
       style="fill:red">
     </polygon>
   `;

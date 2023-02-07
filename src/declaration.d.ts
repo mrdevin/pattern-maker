@@ -14,3 +14,7 @@ declare module '*.webm';
 declare module '*.webm?url';
 declare module '*.vtt';
 declare module '*.vtt?url';
+declare module '*.svg';
+declare module '*.svg?url';
+declare module '*.svg?inline';
+declare module '*.svg?raw';
