@@ -1,3 +1,4 @@
+import { transform } from 'html2canvas/dist/types/css/property-descriptors/transform'
 import { html, css, LitElement } from 'lit'
 import { customElement, property } from 'lit/decorators.js'
 
@@ -8,9 +9,9 @@ export class HexTile extends LitElement {
       --hex-size: 80px;
       --hex-spacing: 0px;
       display: flex;
-      padding: 0 var(--hex-spacing) var(--hex-spacing) 0;
+      /* padding: 0 var(--hex-spacing) var(--hex-spacing) 0;
       width: calc(var(--hex-size));
-      height: calc(var(--hex-size) * 1.1547005);
+      height: calc(var(--hex-size) * 1.1547005); */
       box-sizing: border-box;
       cursor: default;
     }
@@ -43,6 +44,12 @@ export class HexTile extends LitElement {
   @property({ type: Boolean })
   selected = false;
 
+  @property({ type: Number })
+  row = false;
+
+  @property({ type: Number })
+  column = false;
+
   @property({ type: Boolean, reflect: true })
   active = false;
 
@@ -74,6 +81,8 @@ export class HexTile extends LitElement {
     return '5px';
 
   }
+
+
 
   fireClick(event){
 
@@ -134,7 +143,7 @@ export class HexTile extends LitElement {
   // }
   render() {
     return html`
-      <svg  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 294.5 340" style="enable-background:new 0 0 294.5 340;" xml:space="preserve">
+      <!-- <svg  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 294.5 340" style="enable-background:new 0 0 294.5 340;" xml:space="preserve">
         <style type="text/css">
 
           .st0-wrap {
@@ -165,10 +174,10 @@ export class HexTile extends LitElement {
             fill:${this.active && this.type === "pointed" ? '#414042' : 'transparent'};
           }
 
-        </style>
-        <g class="st0-wrap" @click="${this.fireClick}">
+        </style> -->
+        <g class="st0-wrap" style="transform:translate(${0})" @click="${this.fireClick}">
         <polygon  class="st0" id="hexBg" points="0.2,255.3 147.6,340 294.6,254.8 294.3,84.7 146.9,0 -0.2,85.3 "/>
-        <g id="shading" >
+        <g hidden>
           <polygon class="st1" points="0.2,255.3 147.2,170 147.6,340 	"/>
           <polygon class="st2" points="147.5,340 147.2,170 294.6,254.8 	"/>
           <polygon class="st3" points="-0.3,85.5 147.2,170 0.3,255.5 	"/>
@@ -176,7 +185,7 @@ export class HexTile extends LitElement {
           <polygon class="st2" points="294.2,84.5 147.2,170 146.6,0 	"/>
         </g>
         </g>
-      </svg>
+      <!-- </svg> -->
     `
   }
 }

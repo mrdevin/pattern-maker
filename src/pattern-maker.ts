@@ -3,8 +3,10 @@ import { customElement, property } from 'lit/decorators.js';
 import { ref, createRef } from 'lit/directives/ref.js';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
+import  GridIconSvg  from '@/img/grid-icon.svg?url';
 
 import './hex-tile';
+import { HexTilePolygon } from './hex-tile-polygon';
 import  './settings-modal';
 import  './sf-dropdown';
 import  './sf-switch';
@@ -37,6 +39,14 @@ export class PatternMaker extends LitElement {
       margin-top: 80px;
       font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
       background-color: white;
+    }
+
+    .hexagon {
+      fill: blue;
+      stroke: black;
+      stroke-width: 1;
+      transform-origin: center;
+      transform: rotate(0deg);
     }
 
     main {
@@ -131,7 +141,7 @@ export class PatternMaker extends LitElement {
       left: calc(0px  - var(--hex-calc-size)/4);
     }
 
-    svg {
+    header > svg {
       width: 30px;
     }
 
@@ -163,13 +173,13 @@ export class PatternMaker extends LitElement {
    * The name to say "Hello" to.
    */
   @property({ type: Number })
-  rows = 15
+  rows = 50
 
   @property({ type: String })
   toggleType = 'active' || 'color' || 'type';
 
   @property({type: Number})
-  columns = 8
+  columns = 50
 
   @property({ type: Array })
   colors = [
@@ -205,7 +215,7 @@ export class PatternMaker extends LitElement {
 
   constructor() {
     super();
-\    this.style.setProperty("--column-count", this.columns.toString());
+    this.style.setProperty("--column-count", this.columns.toString());
     requestAnimationFrame(() => {
       this.updateGridWidth();
     })
@@ -218,7 +228,7 @@ export class PatternMaker extends LitElement {
   }
 
   updateGridWidth() {
-    this.style.setProperty("--available-area", `${this.clientWidth + 40}px`);
+    // this.style.setProperty("--available-area", `${this.clientWidth + 40}px`);
   }
 
   setColor(colorPosition: number){
@@ -319,29 +329,6 @@ export class PatternMaker extends LitElement {
     this.selectedTiles.includes(ref);
   }
 
-  hexColumns(){
-    const hexTempCols = [];
-    for (var j = 0; j < this.columns; j++) {
-      const tileRef = createRef();
-
-      hexTempCols.push(html`
-        <hex-tile
-          ${ref(tileRef)}
-          ?hideGrid="${this.hideGrid}"
-          @tileClick="${this.selectTile}">
-        </hex-tile>`);
-    }
-    return hexTempCols;
-  }
-
-  hexGrid(){
-    const hexTemplate = [];
-    for (var i = 1; i < this.rows; i++) {
-      hexTemplate.push(html`<div class="row">${this.hexColumns()}</div>`)
-    }
-    return hexTemplate;
-  }
-
   colorList(){
     const colorListTemplate = [];
     for (var i = 0; i < this.colors.length; i++) {
@@ -399,7 +386,23 @@ export class PatternMaker extends LitElement {
     });
   }
 
+  hexColumns(row) {
+    const hexTempCols = [];
+    for (var j = 0; j < this.columns; j++) {
+      // const tileRef = createRef();
 
+      hexTempCols.push(html`${HexTilePolygon({column: j, row: row })}`);
+    }
+    return hexTempCols;
+  }
+
+  hexGrid() {
+    const hexTemplate = [];
+    for (var i = 1; i < this.rows; i++) {
+      hexTemplate.push(html`${this.hexColumns(i)}`)
+    }
+    return hexTemplate;
+  }
 
   render() {
     return html`
@@ -420,23 +423,7 @@ export class PatternMaker extends LitElement {
           class="gridSettings"
           name="Grid Settings"
           @click="${this.toggleGridSetting}">
-          <svg version="1.1" id="Layer_1"
-            xmlns="http://www.w3.org/2000/svg"
-            xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-            viewBox="0 0 850.4 850.4" style="enable-background:new 0 0 850.4 850.4;" xml:space="preserve"
-            >
-            <style type="text/css">
-              .st0{fill:#020202;}
-            </style>
-            <g>
-              <path class="st0" d="M713.9,746.5L528.2,639.3l0-214.4l185.7-107.2l136.5,78.8v-17.1l-129.1-74.5l0-214.4L850.4,16V0h-4.5
-                L715.8,75.2L585.6,0h-38.4l155,89.5l0,214.4L516.5,411.1L330.8,303.9l0-214.4L485.8,0h-33.9L323.5,74.2L195,0h-40.8l156.7,90.5
-                l0,214.4L125.2,412.1L0,339.8v15.9l119.8,69.1l0,214.4L0,708.4v16.9l124.1-71.7l185.7,107.2l0,89.5h19.9l0-89.5l185.7-107.2
-                l185.7,107.2v89.5h22.1l0-89.5l127.2-73.4v-19.8L713.9,746.5z M509.1,639.3L323.4,746.5L137.7,639.3l0-214.4l185.7-107.2
-                l185.7,107.2L509.1,639.3z"/>
-              <polygon class="st0" points="96.3,0 61.6,0 0,35.6 0,55.6 	"/>
-            </g>
-          </svg>
+          <img alt="gridIcon"  src="${GridIconSvg}">
           <span class="label">Grid</span>
         </button>
         <settings-modal
@@ -448,9 +435,10 @@ export class PatternMaker extends LitElement {
 
       </header>
 
-
       <main id="main">
-        ${this.hexGrid()}
+        <svg transform="translate(-50%, -50%)" width="100%" height="100%" viewBox="0 0 1000 1000">
+          ${this.hexGrid()}
+
       </main>
       <pm-footer @save="${this.save}" .tiles="${this.activeTiles}">
       </pm-footer>
