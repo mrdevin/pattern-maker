@@ -1,14 +1,8 @@
 import { html, css,svg, LitElement } from 'lit';
-import { TrisGridSvg } from './TrisGridSvg.js'
 import { repeat } from 'lit/directives/repeat.js';
-import { cache } from 'lit/directives/cache.js';
-import { ref, createRef } from 'lit/directives/ref.js';
 import { customElement, property } from 'lit/decorators.js';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
-import  GridIconSvg  from '@/img/grid-icon.svg?url';
-
-import { HexTilePolygon } from './hex-tile-polygon';
 import { HexTriangle } from './hex-triangle';
 import './hex-tile';
 import  './settings-modal';
@@ -33,6 +27,7 @@ export class PatternMaker extends LitElement {
       --available-area: 100vw;
       --app-padding: 16px;
       --hex-calc-size: calc((var(--available-area) - (var(--app-padding)*2)) / var(--column-count));
+      --grid-scale: 1;
       display: block;
       padding: var(--app-padding);
       max-width: calc(100vw);
@@ -51,6 +46,10 @@ export class PatternMaker extends LitElement {
       stroke-width: 1;
       transform-origin: center;
       transform: rotate(0deg);
+    }
+
+    svg {
+      transform: scale(var(--grid-scale));
     }
 
     main {
@@ -178,13 +177,13 @@ export class PatternMaker extends LitElement {
    * The name to say "Hello" to.
    */
   @property({ type: Number })
-  rows = 100
+  rows = 25
 
   @property({type: Number})
-  columns = 100
+  columns = 25
 
   @property({ type: Number })
-  scale = 1;
+  currentScale = 1;
 
   @property({ type: String })
   toggleType = 'active' || 'color' || 'type';
@@ -226,7 +225,7 @@ export class PatternMaker extends LitElement {
 
   constructor() {
     super();
-    this.style.setProperty("--column-count", this.columns.toString());
+    // this.style.setProperty("--column-count", this.columns.toString());
 
     window.addEventListener('wheel', (event)=>{this.updateScale(event)})
     window.document.body.style.background = 'transparent';
@@ -237,211 +236,204 @@ export class PatternMaker extends LitElement {
   }
 
   updateScale(event){
+    event.preventDefault();
     if (!event.metaKey) return;
-    // console.log("🚀 ~ file: pattern-maker.ts:242 ~ PatternMaker ~ updateViewBox ~ event", event, event.metaKey);
-    let factor = event.wheelDelta >= 0 ? 1.05 : .95;
+    let currentScale = this.currentScale;
+    let factor = event.deltaY >= 0 ? 1.2 : .90;
     let newScale = 0
-      newScale = this.scale * factor
+    newScale = currentScale * factor
     newScale = newScale > 4 ? 4 : newScale;
     newScale = newScale < .5 ? .5 : newScale;
-    console.log("🚀 ~ file: pattern-maker.ts:246 ~ PatternMaker ~ updateScale ~ newScale", newScale)
-    this.scale = newScale;
+    this.currentScale = newScale;
+    this.style.setProperty("--grid-scale", `${newScale}` );
+
   }
 
+  setColor(colorPosition: number){
+    this.currentColor = this.colors[colorPosition];
+    this.updateSelectedTiles('color');
+  }
 
-  // setColor(colorPosition: number){
-  //   this.currentColor = this.colors[colorPosition];
-  //   this.updateSelectedTiles('color');
-  // }
+  updateType(event: any){
+    this.currentType = event.detail.active ? 'pointed' : 'flat';
+    this.updateSelectedTiles('type');
+  }
 
-  // updateType(event: any){
-  //   this.currentType = event.detail.active ? 'pointed' : 'flat';
-  //   this.updateSelectedTiles('type');
-  // }
+  toggleGridSetting(){
+    let modal = this.shadowRoot.querySelector('settings-modal');
+    // @ts-ignore
+    modal.hidden = !modal.hidden;
+  }
 
-  // toggleGridSetting(){
-  //   let modal = this.shadowRoot.querySelector('settings-modal');
-  //   // @ts-ignore
-  //   modal.hidden = !modal.hidden;
-  // }
+  deselect(){
+    this.selectedTiles.forEach((tile)=>{
+      tile.selected = false
+    })
+    this.selectedTiles = [];
+  }
 
-  // deselect(){
-  //   this.selectedTiles.forEach((tile)=>{
-  //     tile.selected = false
-  //   })
-  //   this.selectedTiles = [];
-  // }
+  beforeUnloadListener (event){
+    event.preventDefault();
+    return event.returnValue = "Are you sure you want to exit, without saving your design?";
+  }
 
-  // beforeUnloadListener (event){
-  //   event.preventDefault();
-  //   return event.returnValue = "Are you sure you want to exit, without saving your design?";
-  // }
+  checkUnload(){
+    if (this.activeTiles.length > 0) {
+      window.addEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
+    } else {
+      window.removeEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
+    }
+  }
 
-  // checkUnload(){
-  //   if (this.activeTiles.length > 0) {
-  //     window.addEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
-  //   } else {
-  //     window.removeEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
-  //   }
-  // }
+  removeFromSelected(tile){
+    const tileIndex = this.selectedTiles.indexOf(tile)
+    if (tileIndex > -1) {
+      this.selectedTiles.splice(tileIndex, 1);
+      this.selectedTiles = this.selectedTiles.slice();
+    }
+  }
 
-  // removeFromSelected(tile){
-  //   const tileIndex = this.selectedTiles.indexOf(tile)
-  //   if (tileIndex > -1) {
-  //     this.selectedTiles.splice(tileIndex, 1);
-  //     this.selectedTiles = this.selectedTiles.slice();
-  //   }
-  // }
+  selectTile(event: any){
+    console.log("🚀 ~ file: pattern-maker.ts:303 ~ PatternMaker ~ selectTile ~ event", event)
+    if (event.metakey || this.shouldSelectMany){
+      this.selectedTiles.push(event.target);
+    }else{
+      this.deselect();
+      this.selectedTiles.push(event.target);
+    }
 
-  // selectTile(event: any){
-  //   if (event.detail.metakey || this.shouldSelectMany){
-  //     this.selectedTiles.push(event.target);
-  //   }else{
-  //     this.deselect();
-  //     this.selectedTiles.push(event.target);
-  //   }
+    event.target.selected = !event.target.selected;
+    if (!event.target.selected){
+      this.removeFromSelected(event.target);
+    }
 
-  //   event.target.selected = !event.target.selected;
-  //   if (!event.target.selected){
-  //     this.removeFromSelected(event.target);
-  //   }
+    const WasActive = event.target.active;
+    event.target.active = (event.metakey || this.shouldSelectMany) && event.target.active  ? true : !event.target.active;
 
-  //   const WasActive = event.target.active;
-  //   event.target.active = (event.detail.metakey || this.shouldSelectMany) && event.target.active  ? true : !event.target.active;
+    if (event.target.active && !WasActive){
+      event.target.type = this.currentType;
+      event.target.color = this.currentColor.color;
+    } else if (event.target.active && WasActive){
+    }else{
+      this.deselect();
+    }
 
-  //   if (event.target.active && !WasActive){
-  //     event.target.type = this.currentType;
-  //     event.target.color = this.currentColor.color;
-  //   } else if (event.target.active && WasActive){
-  //   }else{
-  //     this.deselect();
-  //   }
+    requestAnimationFrame(()=>{
+      this.getActiveTiles();
+      this.checkUnload();
+    });
+  }
 
-  //   requestAnimationFrame(()=>{
-  //     this.getActiveTiles();
-  //     this.checkUnload();
-  //   });
-  // }
+  updateSelectedTiles(param){
+    this.selectedTiles.forEach((tile) => {
+      if(tile.selected){
+        if (param === 'type'){
+          tile.type = this.currentType;
+        }
 
-  // updateSelectedTiles(param){
-  //   this.selectedTiles.forEach((tile) => {
-  //     if(tile.selected){
-  //       if (param === 'type'){
-  //         tile.type = this.currentType;
-  //       }
+        if (param === 'color') {
+          tile.color = this.currentColor.color;
+        }
+      }
+    });
+    this.getActiveTiles();
+    this.checkUnload();
+  }
 
-  //       if (param === 'color') {
-  //         tile.color = this.currentColor.color;
-  //       }
-  //     }
-  //   });
-  //   this.getActiveTiles();
-  //   this.checkUnload();
-  // }
+  toggleHideGrid(event: any){
+    this.hideGrid = event.detail.hideGrid;
+  }
 
-  // toggleHideGrid(event: any){
-  //   this.hideGrid = event.detail.hideGrid;
-  // }
+  isSelected(ref){
+    this.selectedTiles.includes(ref);
+  }
 
-  // isSelected(ref){
-  //   this.selectedTiles.includes(ref);
-  // }
+  colorList(){
+    const colorListTemplate = [];
+    for (var i = 0; i < this.colors.length; i++) {
+      let index = i;
+      colorListTemplate.push(html`<a
+        @click="${() => { this.setColor(index); }}"
+        ?selected="${this.colors[i] === this.currentColor}"
+        name="${this.colors[i].name}">
+          <i>⬢</i><span>${this.colors[i].name}</span>
+        </a>`)
+    }
+    return colorListTemplate;
+  }
 
-  // colorList(){
-  //   const colorListTemplate = [];
-  //   for (var i = 0; i < this.colors.length; i++) {
-  //     let index = i;
-  //     colorListTemplate.push(html`<a
-  //       @click="${() => { this.setColor(index); }}"
-  //       ?selected="${this.colors[i] === this.currentColor}"
-  //       name="${this.colors[i].name}">
-  //         <i>⬢</i><span>${this.colors[i].name}</span>
-  //       </a>`)
-  //   }
-  //   return colorListTemplate;
-  // }
+  updatePadding(event: any){
+    const rangeValue = event.detail.padding;
+    this.style.setProperty('--hex-padding', `${rangeValue/50}rem`)
+  }
 
-  // updatePadding(event: any){
-  //   const rangeValue = event.detail.padding;
-  //   this.style.setProperty('--hex-padding', `${rangeValue/50}rem`)
-  // }
+  updateColumns(event: any) {
+    this.columns = event.detail.columns;
+    this.style.setProperty("--column-count", this.columns.toString());
+  }
 
-  // updateColumns(event: any) {
-  //   this.columns = event.detail.columns;
-  //   this.style.setProperty("--column-count", this.columns.toString());
+  updateRows(event: any) {
+    this.rows = event.detail.rows;
+  }
 
-  // }
+  toggleSelectMany() {
+    this.shouldSelectMany = !this.shouldSelectMany;
+  }
 
-  // updateRows(event: any) {
-  //   this.rows = event.detail.rows;
-  // }
+  getActiveTiles(){
+    this.activeTiles =  Array.from(this.shadowRoot.querySelectorAll('hex-tile[active]'));
+  }
 
-  // toggleSelectMany() {
-  //   this.shouldSelectMany = !this.shouldSelectMany;
-  // }
+  renderSelectTxt(){
+    if (this.shouldSelectMany){
+      return 'Selecting Many';
+    }
+    return 'Select Many';
+  }
 
-  // getActiveTiles(){
-  //   this.activeTiles =  Array.from(this.shadowRoot.querySelectorAll('hex-tile[active]'));
-  // }
+  save(){
+    this.deselect();
+    let hexGrid = this.shadowRoot.querySelector("#main");
+    // @ts-ignore
+    html2canvas(hexGrid).then( (canvas)=>{
+      canvas.toBlob((blob)=>{
+        saveAs(blob, 'Meine-Hexagonal-Design-Schnauze-Fabrik.png');
+        window.removeEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
 
-  // renderSelectTxt(){
-  //   if (this.shouldSelectMany){
-  //     return 'Selecting Many';
-  //   }
-  //   return 'Select Many';
-  // }
-
-  // save(){
-  //   this.deselect();
-  //   let hexGrid = this.shadowRoot.querySelector("#main");
-  //   // @ts-ignore
-  //   html2canvas(hexGrid).then( (canvas)=>{
-  //     canvas.toBlob((blob)=>{
-  //       saveAs(blob, 'Meine-Hexagonal-Design-Schnauze-Fabrik.png');
-  //       window.removeEventListener("beforeunload", this.beforeUnloadListener, { capture: true });
-
-  //     })
-  //   });
-  // }
-
-  // hexColumns(row) {
-  //   const hexTempCols = [];
-  //   for (var j = 0; j < this.columns; j++) {
-  //     // const tileRef = createRef();
-
-  //     hexTempCols.push(html`${cache(HexTriangle({column: j, row: row }))}`);
-  //   }
-  //   return hexTempCols;
-  // }
-
-  // hexGrid() {
-  //   const hexTemplate = [];
-  //   for (var i = 1; i < this.rows; i++) {
-  //     hexTemplate.push(html`${cache(this.hexColumns(i))}`)
-  //   }
-  //   return hexTemplate;
-  // }
+      })
+    });
+  }
 
   render() {
     return html`
-      <!-- <header>
+      <header>
 
         <sf-dropdown btncolor="${this.currentColor.color}" title="Select Color">
           ${this.colorList()}
         </sf-dropdown>
 
         <sf-switch @activeUpdated="${this.updateType}"></sf-switch>
-        <button class="headerBtn selectBtn" @click="${this.toggleSelectMany}">
-          ${this.renderSelectTxt()}
-        </button>
-        <button class="headerBtn" @click="${this.deselect}">
-          Deselect All
-        </button>
+        <button class="headerBtn selectBtn" @click="${this.toggleSelectMany}">${this.renderSelectTxt()}</button>
+        <button class="headerBtn" @click="${this.deselect}">Deselect All</button>
         <button
           class="gridSettings"
           name="Grid Settings"
           @click="${this.toggleGridSetting}">
-          <img alt="gridIcon"  src="${GridIconSvg}">
+          <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+            viewBox="0 0 850.4 850.4" style="enable-background:new 0 0 850.4 850.4;" xml:space="preserve"
+            >
+            <style type="text/css">
+              .st0{fill:#020202;}
+            </style>
+            <g>
+              <path class="st0" d="M713.9,746.5L528.2,639.3l0-214.4l185.7-107.2l136.5,78.8v-17.1l-129.1-74.5l0-214.4L850.4,16V0h-4.5
+                L715.8,75.2L585.6,0h-38.4l155,89.5l0,214.4L516.5,411.1L330.8,303.9l0-214.4L485.8,0h-33.9L323.5,74.2L195,0h-40.8l156.7,90.5
+                l0,214.4L125.2,412.1L0,339.8v15.9l119.8,69.1l0,214.4L0,708.4v16.9l124.1-71.7l185.7,107.2l0,89.5h19.9l0-89.5l185.7-107.2
+                l185.7,107.2v89.5h22.1l0-89.5l127.2-73.4v-19.8L713.9,746.5z M509.1,639.3L323.4,746.5L137.7,639.3l0-214.4l185.7-107.2
+                l185.7,107.2L509.1,639.3z"/>
+              <polygon class="st0" points="96.3,0 61.6,0 0,35.6 0,55.6 	"/>
+            </g>
+          </svg>
           <span class="label">Grid</span>
         </button>
         <settings-modal
@@ -451,10 +443,9 @@ export class PatternMaker extends LitElement {
           @updateRows="${this.updateRows}">
         </settings-modal>
 
-      </header> -->
-
+      </header>
       <main id="main">
-        <svg  width="100svw" height="100svh" viewBox="0 0 1000 1000">
+        <svg @tileClick="${this.selectTile}" id="svgGrid" width="100svw" height="100svh" viewBox="0 0 1000 1000">
         <style>
           .sf1 {
             fill: 'lightblue';
@@ -468,14 +459,13 @@ export class PatternMaker extends LitElement {
               return repeat([...Array(this.columns).keys()],
                 (column) => {  return `row${row}column${column}` },
                 (column) => {
-                  return HexTriangle({ column: column, row: row });
+                  return HexTriangle({ column: column, row: row, clickHandler: this.selectTile });
               })
           })}
         </svg>
       </main>
-      <!-- <pm-footer @save="${this.save}" .tiles="${this.activeTiles}">
-      </pm-footer> -->
-
+      <pm-footer @save="${this.save}" .tiles="${this.activeTiles}">
+      </pm-footer>
     `
   }
 }

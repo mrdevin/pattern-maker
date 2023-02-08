@@ -4,13 +4,11 @@ import { cache } from 'lit/directives/cache.js';
 interface HexTriangleProps{
    column: number,
    row: number,
-   size?:number
+   size?:number,
+  clickHandler: Function
 }
 
-
-
-export const HexTriangle = ({column=0, row=0, size=80}: HexTriangleProps) => {
-console.log("🚀 ~ file: hex-triangle.ts:12 ~ HexTriangle ~ size", size)
+export const HexTriangle = ({ column = 0, row = 0, size = 80, clickHandler=()=>{}}: HexTriangleProps) => {
 
   const hexWidth = size;
   const hexHeight = hexWidth * Math.sqrt(3) / 2;
@@ -52,47 +50,25 @@ console.log("🚀 ~ file: hex-triangle.ts:12 ~ HexTriangle ~ size", size)
     return `0, 0, 0`;
   }
 
-  function calcFill(){
-
-    if (column % 2 || (row % 2)) {
-      return 'red';
-    }
-    return 'green';
-  }
-
-  function toggleFill(event){
-    // console.log("🚀 ~ file: hex-triangle.ts:58 ~ toggleFill ~ event", event.target)
-    let currentFill  = event.target.style.fill;
-    console.log("🚀 ~ file: hex-triangle.ts:61 ~ toggleFill ~ currentFill", currentFill)
-
-    let newFill = 'pink';
-    if ( currentFill === newFill){
-      newFill = 'lightblue';
-    }
-    event.target.style.fill =  newFill;
-  }
 
   // let fill = calcFill()
 
   return svg`
-
     <g  transform="translate(${translations()}), rotate(${rotations()})">
-
       ${cache(triangles
       .map(
         (triangle, i) => {
           if ([1, 4].includes(i)){
-            return svg`<polygon class="sf1" @click="${toggleFill}"  points="${cache(triangle
+            return svg`<polygon class="sf1" @click="${clickHandler}"  points="${cache(triangle
               .map(p => p.join(","))
               .join(" "))}" fill="none" stroke="black"></polygon>
               <g transform="translate(${hexRadius * spacingFactor}, 0 )">
-              <polygon class="sf1"  @click="${toggleFill}"  points="${cache(triangle
+              <polygon class="sf1"  @click="${clickHandler}"  points="${cache(triangle
                 .map(p => p.join(","))
                 .join(" "))}" fill="none" stroke="black"></polygon></g>
               `
-
           }else{
-            return svg`<polygon class="sf1" @click="${toggleFill}"  points="${cache(triangle
+            return svg`<polygon class="sf1" @click="${clickHandler}"  points="${cache(triangle
               .map(p => p.join(","))
               .join(" "))}" fill="none" stroke="black"></polygon>`
           }
