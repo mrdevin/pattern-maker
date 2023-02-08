@@ -1,9 +1,9 @@
-import { html, css,svg, LitElement } from 'lit';
+import { html, css, svg, LitElement } from 'lit';
 import { repeat } from 'lit/directives/repeat.js';
+import { ref, createRef } from 'lit/directives/ref.js';
 import { customElement, property } from 'lit/decorators.js';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
-import { HexTriangle } from './hex-triangle';
 import './hex-tile';
 import  './settings-modal';
 import  './sf-dropdown';
@@ -22,13 +22,12 @@ export class PatternMaker extends LitElement {
       --highlight-color: rgba(239, 229, 169, var(--highlight-color-alpha));
       --shadow-color-alpha: 1;
       --shadow-color: rgba(40, 40, 40, var(--shadow-color-alpha));
-      --hex-padding: 4px;
-      --column-count: 1;
-      --available-area: 100vw;
-      --app-padding: 16px;
-      --hex-calc-size: calc((var(--available-area) - (var(--app-padding)*2)) / var(--column-count));
+      --row-count: 25;
+      --column-count: 25;
+      --hex-size: 55px;
       --grid-scale: 1;
       display: block;
+      position: relative;
       padding: var(--app-padding);
       max-width: calc(100vw);
       min-height: calc(100vh);
@@ -37,26 +36,25 @@ export class PatternMaker extends LitElement {
       padding: 0;
       margin-top: 80px;
       font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
-      background-color: white;
+      background-color: var(--highlight-color);
     }
 
-    .hexagon {
-      fill: blue;
-      stroke: black;
-      stroke-width: 1;
-      transform-origin: center;
-      transform: rotate(0deg);
-    }
 
-    svg {
+    #svgGrid {
       transform: scale(var(--grid-scale));
+      position: absolute;
+      display:block;
+      width: calc(var(--column-count) * var(--hex-size) );
+      height: calc(var(--row-count) * var(--hex-size) );
     }
 
     main {
-      display: flex;
+      display: block;
+      width:100vw;
+      height:100vh;
       flex-wrap: wrap;
-      background-color: white;
-      /* margin-top: 0px; */
+      overflow: hidden;
+      background-color: var(--highlight-color);
     }
 
     .label {
@@ -112,10 +110,10 @@ export class PatternMaker extends LitElement {
       margin-right: .5em
     }
 
-    hex-tile {
+    /* hex-tile {
       --hex-size: var(--hex-calc-size);
       --hex-spacing: var(--hex-padding)
-    }
+    } */
 
     .gridSettings {
       margin-left: auto;
@@ -131,7 +129,7 @@ export class PatternMaker extends LitElement {
       color: var(--shadow-color);
       font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
     }
-
+    /*
     .row {
       display: flex;
       flex-wrap: nowrap;
@@ -143,7 +141,7 @@ export class PatternMaker extends LitElement {
     .row:nth-of-type(2n){
       position: relative;
       left: calc(0px  - var(--hex-calc-size)/4);
-    }
+    } */
 
     header > svg {
       width: 30px;
@@ -223,12 +221,16 @@ export class PatternMaker extends LitElement {
   @property({ type: Boolean , reflect: true})
   shouldSelectMany = false;
 
-  constructor() {
-    super();
-    // this.style.setProperty("--column-count", this.columns.toString());
 
-    window.addEventListener('wheel', (event)=>{this.updateScale(event)})
-    window.document.body.style.background = 'transparent';
+  connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener('wheel', this.updateScale.bind(this));
+
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback()
+    window.removeEventListener('wheel', this.updateScale.bind(this));
   }
 
   firstUpdated() {
@@ -236,7 +238,6 @@ export class PatternMaker extends LitElement {
   }
 
   updateScale(event){
-    event.preventDefault();
     if (!event.metaKey) return;
     let currentScale = this.currentScale;
     let factor = event.deltaY >= 0 ? 1.2 : .90;
@@ -246,7 +247,6 @@ export class PatternMaker extends LitElement {
     newScale = newScale < .5 ? .5 : newScale;
     this.currentScale = newScale;
     this.style.setProperty("--grid-scale", `${newScale}` );
-
   }
 
   setColor(colorPosition: number){
@@ -294,26 +294,27 @@ export class PatternMaker extends LitElement {
   }
 
   selectTile(event: any){
-    console.log("🚀 ~ file: pattern-maker.ts:303 ~ PatternMaker ~ selectTile ~ event", event)
+    console.log("🚀 ~ file: pattern-maker.ts:303 ~ PatternMaker ~ selectTile ~ event", event, event.target)
+    const SvgElement = event.target;
     if (event.metakey || this.shouldSelectMany){
-      this.selectedTiles.push(event.target);
+      this.selectedTiles.push(SvgElement);
     }else{
       this.deselect();
-      this.selectedTiles.push(event.target);
+      this.selectedTiles.push(SvgElement);
     }
 
-    event.target.selected = !event.target.selected;
-    if (!event.target.selected){
-      this.removeFromSelected(event.target);
+    SvgElement.selected = !SvgElement.selected;
+    if (!SvgElement.selected){
+      this.removeFromSelected(SvgElement);
     }
 
-    const WasActive = event.target.active;
-    event.target.active = (event.metakey || this.shouldSelectMany) && event.target.active  ? true : !event.target.active;
+    const WasActive = SvgElement.active;
+    SvgElement.active = (event.metakey || this.shouldSelectMany) && SvgElement.active  ? true : !SvgElement.active;
 
-    if (event.target.active && !WasActive){
-      event.target.type = this.currentType;
-      event.target.color = this.currentColor.color;
-    } else if (event.target.active && WasActive){
+    if (SvgElement.active && !WasActive){
+      SvgElement.type = this.currentType;
+      SvgElement.color = this.currentColor.color;
+    } else if (SvgElement.active && WasActive){
     }else{
       this.deselect();
     }
@@ -328,7 +329,7 @@ export class PatternMaker extends LitElement {
     this.selectedTiles.forEach((tile) => {
       if(tile.selected){
         if (param === 'type'){
-          tile.type = this.currentType;
+          tile.type =  this.currentType;
         }
 
         if (param === 'color') {
@@ -444,14 +445,8 @@ export class PatternMaker extends LitElement {
         </settings-modal>
 
       </header>
-      <main id="main">
-        <svg @tileClick="${this.selectTile}" id="svgGrid" width="100svw" height="100svh" viewBox="0 0 1000 1000">
-        <style>
-          .sf1 {
-            fill: 'lightblue';
-            stroke: var(--shadow-color);
-          }
-        </style>
+      <main>
+        <section id="svgGrid">
           ${repeat(
             [...Array(this.rows).keys()],
             (row) => {  return `row${row}` },
@@ -459,10 +454,18 @@ export class PatternMaker extends LitElement {
               return repeat([...Array(this.columns).keys()],
                 (column) => {  return `row${row}column${column}` },
                 (column) => {
-                  return HexTriangle({ column: column, row: row, clickHandler: this.selectTile });
-              })
-          })}
-        </svg>
+                  const tileRef = createRef();
+                  return html`<hex-tile
+                    ${ref(tileRef)}
+                    ?hideGrid="${this.hideGrid}"
+                    @tileClick="${this.selectTile}"
+                    column="${column}"
+                    row="${row}"
+                    size="55"
+                    currentType="${this.currentType}">`
+                })
+            })}
+        </section>
       </main>
       <pm-footer @save="${this.save}" .tiles="${this.activeTiles}">
       </pm-footer>

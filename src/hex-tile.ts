@@ -1,29 +1,65 @@
-import { transform } from 'html2canvas/dist/types/css/property-descriptors/transform'
-import { html, css, LitElement } from 'lit'
-import { customElement, property } from 'lit/decorators.js'
-
+import { css, LitElement, html, svg } from 'lit'
+import { customElement, property, state } from 'lit/decorators.js'
+import { unsafeHTML } from 'lit/directives/unsafe-html.js';
+export enum TileType {
+  Pointed = "pointed",
+  Flat = "flat"
+}
 @customElement('hex-tile')
 export class HexTile extends LitElement {
   static styles = css`
     :host {
-      --hex-size: 80px;
+      --hex-size: 0px;
       --hex-spacing: 0px;
-      display: flex;
-      /* padding: 0 var(--hex-spacing) var(--hex-spacing) 0;
-      width: calc(var(--hex-size));
-      height: calc(var(--hex-size) * 1.1547005); */
+      --hex-translate: translate(0, 0);
+      --hex-rotate: rotate(0);
+      --hex-width: 0px;
+      --hex-height: 0px;
+      display: block;
+      width: var(--hex-width);
+      height: var(--hex-height);
       box-sizing: border-box;
       cursor: default;
+      transform:var(--hex-translate), var(--hex-rotate);
+      position: absolute;
+      top: var(--hex-left);
+      left: var(--hex-top);
     }
 
-    svg polygon{
-      display:flex;
-      max-height: 100%;
+    svg {
+      width: 100%;
+      height: 100%;
+    }
+    :host([selected]) .hex {
+      stroke-dasharray:2 1 3 1;
+      animation:5s infinite normal marchingAnts linear;
     }
 
-    svg polygon {
+    svg path {
       cursor: pointer;
     }
+
+    .hex {
+      transform-origin: center;
+    }
+
+    .shadows,
+    .shadows path {
+      pointer-events: none;
+    }
+
+    .shad1{opacity:0.1; fill: black}
+    .shad2{opacity:0.2;fill: black;}
+    .shad3{opacity:0.3;fill: black}
+    .shad4{opacity:0.2;fill:black;}
+    .shad5{opacity:0.0; fill: white}
+
+    .shad1,
+    .shad2,
+    .shad3,
+    .shad4,
+    .shad5{stroke: none;mix-blend-mode: darken; }
+
 
     @keyframes marchingAnts {
       from {stroke-dashoffset: 0%;}
@@ -38,17 +74,20 @@ export class HexTile extends LitElement {
   @property({ type: String })
   color = "rgb(26, 63, 169)";
 
-  @property({ type: String })
-  type = "pointed" || "flat";
+  @property({ type: TileType })
+  type;
 
-  @property({ type: Boolean })
+  @property({ type: TileType })
+  currentType = "pointed" || "flat";
+
+  @property({ type: Boolean, reflect: true })
   selected = false;
 
   @property({ type: Number })
-  row = false;
+  row = 0;
 
   @property({ type: Number })
-  column = false;
+  column = 0;
 
   @property({ type: Boolean, reflect: true })
   active = false;
@@ -56,33 +95,78 @@ export class HexTile extends LitElement {
   @property({ type: Boolean })
   hideGrid = false;
 
-  getStrokeColor(){
-    if (this.hideGrid) return 'transparent';
-    if (this.selected) return '#008bf8';
-    return !this.active ? 'gray' : 'transparent'
+  @property({type: Number})
+  size = 55.0145;
+
+  @state()
+  hexWidth = this.size;
+
+  @state()
+  hexHeight = this.hexWidth * Math.sqrt(3) / 2;
+
+  @state()
+  hexX = (this.column * this.hexWidth) + (this.row % 2 === 0 ? this.hexWidth / 2 : 0);
+
+  @state()
+  hexY = this.row * this.hexHeight;
+
+  @state()
+  hexRadius = this.size / 2;
+
+  translations() {
+    const spacingFactor = 100 / 100
+    return [`${((this.hexRadius + this.hexX) * spacingFactor) - (this.size)}px`,
+              `${((this.hexRadius + this.hexY) * spacingFactor) - ((this.size * 1.8))}px`]
   }
 
-  getAnimation(){
-    if (this.selected){
-      return 'stroke-dasharray: 15 8; animation 20s infinite normal marchingAnts linear; '
+  updated(changedProperties: Map<string, unknown>) {
+    if (changedProperties.has("size")) {
+      this.setDimensions();
     }
-    return '';
+
+    if (changedProperties.has("type") || changedProperties.has("currentType")) {
+      console.log('type, currentType', this.type, this.currentType)
+    }
+  }
+
+  setDimensions(){
+    this.style.transform = ` rotate(${this.rotations()})`;
+    this.style.setProperty('--hex-size', `${this.size}px`);
+    this.style.setProperty('--hex-top', `${this.translations()[0]}`);
+    this.style.setProperty('--hex-left', `${this.translations()[1]}`);
+    this.style.setProperty('--hex-rotate', `rotate(${this.rotations()})`);
+    this.style.setProperty('--hex-width', `${this.hexWidth}px`);
+    this.style.setProperty('--hex-height', `${this.hexHeight}px`);
+  }
+
+  firstUpdated()  {
+    // console.log("🚀 ~ file: hex-tile.ts:132 ~ HexTile ~ firstUpdated ~ firstUpdated")
+    this.setDimensions();
+    this.style.setProperty('--hex-size', `${this.size}px`);
+  }
+
+  rotations() {
+    return `0, 0, 0`;
+  }
+
+  getStrokeColor(){
+    if (this.hideGrid) return 'transparent';
+    if (this.selected) return 'rgba(280,280,280,.8)';
+    return !this.active ? 'gray' : 'transparent'
   }
 
   getStrokeWidth(){
     if (this.selected ) {
-      return '15px';
+      return '5px';
     }
 
     if(this.active && !this.selected){
       return '0px';
     }
 
-    return '5px';
+    return '1px';
 
   }
-
-
 
   fireClick(event){
 
@@ -94,99 +178,38 @@ export class HexTile extends LitElement {
     this.dispatchEvent(new CustomEvent('tileClick', options));
   }
 
-  // render() {
-  //   return html`
-  //     <svg  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 294.5 340" style="enable-background:new 0 0 294.5 340;" xml:space="preserve">
-  //       <style type="text/css">
+  renderPonts(){
+    if ((this.currentType === TileType.Pointed && this.type !== TileType.Flat) || (this.currentType === TileType.Flat && this.type === TileType.Pointed) || (this.currentType === TileType.Pointed && this.type === TileType.Pointed) ){
+      return svg`<g class="shadows" >
+          <path class="shad1" d="M47.6 13.8 23.8 27.5l23.8 13.8V13.8z"></path>
+          <path class="shad2" d="m23.8 55 23.8-13.7-23.8-13.8z"></path>
+          <path class="shad3" d="M0 41.3 23.8 55V27.5z"></path>
+          <path class="shad4" d="M0 13.8v27.5l23.8-13.8z"></path>
+          <path class="shad1" d="M23.8 0 0 13.8l23.8 13.7z"></path>
+          <path class="shad5" d="M47.6 13.8 23.8 0v27.5z"></path>
+        </g>`;
+    }else{
+      return ``;
+    }
+  }
 
-  //         .st0-wrap {
-  //           transform-origin: center;
-
-  //         }
-
-  //         .st0{
-  //           fill: ${ this.active ? this.color : 'transparent'};
-  //           stroke: ${this.getStrokeColor()};
-  //           stroke-width: ${ this.getStrokeWidth() };
-  //           ${ this.getAnimation() }
-  //         }
-
-
-  //         .st1{
-  //           opacity:0.5;
-  //           fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};
-  //         }
-
-  //         .st2{
-  //           opacity:0.375;
-  //           fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};
-  //         }
-
-  //         .st3{
-  //           opacity:0.7;
-  //           fill:${ this.active && this.type==="pointed" ? '#414042': 'transparent'};
-  //         }
-
-  //       </style>
-  //       <g class="st0-wrap" @click="${this.fireClick}">
-  //       <polygon  class="st0" id="hexBg" points="0.2,255.3 147.6,340 294.6,254.8 294.3,84.7 146.9,0 -0.2,85.3 "/>
-  //       <g id="shading" >
-  //         <polygon class="st1" points="0.2,255.3 147.2,170 147.6,340 	"/>
-  //         <polygon class="st2" points="147.5,340 147.2,170 294.6,254.8 	"/>
-  //         <polygon class="st3" points="-0.3,85.5 147.2,170 0.3,255.5 	"/>
-  //         <polygon class="st1" points="146.5,0 147.2,170 -0.4,85.7 	"/>
-  //         <polygon class="st2" points="294.2,84.5 147.2,170 146.6,0 	"/>
-  //       </g>
-  //       </g>
-  //     </svg>
-  //   `
-  // }
   render() {
-    return html`
-      <!-- <svg  version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 294.5 340" style="enable-background:new 0 0 294.5 340;" xml:space="preserve">
-        <style type="text/css">
+      return html`
+      <svg viewBox="0 0 ${this.hexHeight} ${this.hexWidth}"
+        style="enable-background:new 0 0 ${this.hexHeight} ${this.hexWidth}">
+        <path
+          class="hex"
+          fill="${ this.active ? this.color : 'transparent'}"
+          stroke="${this.getStrokeColor()}"
+          stroke-width="${this.getStrokeWidth()}"
+          @click=${this.fireClick}
+          d="M47.6 13.8v27.5L23.8 55 0 41.3V13.8L23.8 0z"></path>
+        ${this.renderPonts()}
 
-          .st0-wrap {
-            transform-origin: center;
-
-          }
-
-          .st0{
-            fill: ${this.active ? this.color : 'transparent'};
-            stroke: ${this.getStrokeColor()};
-            stroke-width: ${this.getStrokeWidth()};
-            ${this.getAnimation()}
-          }
-
-
-          .st1{
-            opacity:0.5;
-            fill:${this.active && this.type === "pointed" ? '#414042' : 'transparent'};
-          }
-
-          .st2{
-            opacity:0.375;
-            fill:${this.active && this.type === "pointed" ? '#414042' : 'transparent'};
-          }
-
-          .st3{
-            opacity:0.7;
-            fill:${this.active && this.type === "pointed" ? '#414042' : 'transparent'};
-          }
-
-        </style> -->
-        <g class="st0-wrap" style="transform:translate(${0})" @click="${this.fireClick}">
-        <polygon  class="st0" id="hexBg" points="0.2,255.3 147.6,340 294.6,254.8 294.3,84.7 146.9,0 -0.2,85.3 "/>
-        <g hidden>
-          <polygon class="st1" points="0.2,255.3 147.2,170 147.6,340 	"/>
-          <polygon class="st2" points="147.5,340 147.2,170 294.6,254.8 	"/>
-          <polygon class="st3" points="-0.3,85.5 147.2,170 0.3,255.5 	"/>
-          <polygon class="st1" points="146.5,0 147.2,170 -0.4,85.7 	"/>
-          <polygon class="st2" points="294.2,84.5 147.2,170 146.6,0 	"/>
-        </g>
-        </g>
-      <!-- </svg> -->
+    </svg>
     `
+
+
   }
 }
 
