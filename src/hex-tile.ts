@@ -125,7 +125,6 @@ export class HexTile extends LitElement {
   @property({type: String})
   gridType: GridType;
 
-
   positions() {
     if (this.gridType === GridType.PointedUp) {
       return [
@@ -222,7 +221,8 @@ export class HexTile extends LitElement {
           stroke="${this.getStrokeColor()}"
           stroke-width="${this.getStrokeWidth()}"
           @click=${this.fireClick}
-          d="M86,24.9v49.7L43,99.4L0,74.6V24.9L43,0L86,24.9z"></path>
+          d="M86,24.9v49.7L43,99.4L0,74.6V24.9L43,0L86,24.9z">
+        </path>
         ${this.renderPonts()}
 
     </svg>

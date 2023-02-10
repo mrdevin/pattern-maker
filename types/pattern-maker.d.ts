@@ -4,6 +4,10 @@ import './settings-modal';
 import './sf-dropdown';
 import './sf-switch';
 import './pm-footer';
+export declare enum GridType {
+    PointedUp = "pointed-up",
+    FlatUp = "flat-up"
+}
 export declare class PatternMaker extends LitElement {
     static styles: import("lit").CSSResult[];
     /**
@@ -32,6 +36,7 @@ export declare class PatternMaker extends LitElement {
     hideGridSettings: boolean;
     shouldSelectMany: boolean;
     hammerInst: any;
+    gridType: GridType;
     connectedCallback(): void;
     disconnectedCallback(): void;
     firstUpdated(): void;
@@ -40,11 +45,13 @@ export declare class PatternMaker extends LitElement {
     enableScroll(): void;
     wheelHandler(event: any): void;
     pinchHandler(event: any): void;
+    panhHandler(event: any): void;
     updateScale(_event: any, marker: any): void;
     setColor(colorPosition: number): void;
     updateType(event: any): void;
     toggleGridSetting(): void;
     deselectAll(): void;
+    toggleGridType(): void;
     beforeUnloadListener(event: any): string;
     checkUnload(): void;
     removeFromSelected(tile: any): void;
@@ -57,6 +64,7 @@ export declare class PatternMaker extends LitElement {
     toggleSelectMany(): void;
     getActiveTiles(): void;
     renderSelectTxt(): "Selecting Many" | "Select Many";
+    renderGridTxt(): "Pointed Sides up" | "Flat Sides up";
     save(): void;
     render(): import("lit").TemplateResult<1>;
 }

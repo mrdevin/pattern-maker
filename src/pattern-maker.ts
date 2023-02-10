@@ -64,7 +64,7 @@ export class PatternMaker extends LitElement {
       height:calc(100vh - 80px - 25px);
       position: relative;
       flex-wrap: wrap;
-      overflow: scroll;
+      overflow: hidden;
       background-color: var(--highlight-color);
     }
 
@@ -242,6 +242,7 @@ export class PatternMaker extends LitElement {
       this.hammerInst.get('pinch').set({ enable: true });
 
       this.hammerInst.on('pinch', this.pinchHandler.bind(this));
+      this.hammerInst.on('pan', this.panhHandler.bind(this));
     })
 
   }
@@ -264,7 +265,6 @@ export class PatternMaker extends LitElement {
 
   updateDimensions(){
       let hexDimension = this.shadowRoot.querySelector('hex-tile').shadowRoot.querySelector('path').getBoundingClientRect();
-      console.log("🚀 ~ file: pattern-maker.ts:244 ~ PatternMaker ~ firstUpdated ~ hexDimension", hexDimension)
       this.style.setProperty('--hex-height', `${hexDimension.height}px`);
       this.style.setProperty('--hex-weight', `${hexDimension.width}px`);
   }
@@ -303,8 +303,12 @@ export class PatternMaker extends LitElement {
     this.style.setProperty("--grid-scale", `${this.currentScale}`);
   }
 
+  panhHandler(event) {
+    event.target.scrollLeft = event.target.scrollLeft - ( event.deltaX /12);
+    event.target.scrollTop = event.target.scrollTop - ( event.deltaY /12);
+  }
+
   updateScale(_event, marker) {
-    console.log("🚀 ~ file: pattern-maker.ts:269 ~ PatternMaker ~ updateScale ~ event", marker)
 
     //Grabs all relevant values
     let currentScale = this.currentScale;
@@ -447,7 +451,6 @@ export class PatternMaker extends LitElement {
 
   updatePadding(event: any){
     const rangeValue = event.detail.padding;
-    console.log("🚀 ~ file: pattern-maker.ts:381 ~ PatternMaker ~ updatePadding ~ rangeValue", parseInt(rangeValue))
     this.padding = parseInt(rangeValue)
   }
 
