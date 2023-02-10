@@ -46,10 +46,7 @@ export class PatternMaker extends LitElement {
 
     #svgGrid {
       transform: scale(var(--grid-scale));
-      position: absolute;
-      top: 0;
-      left: 0;
-      margin-bottom: calc(var(--hex-height) * 2.5)
+      margin-bottom: calc(var(--hex-height) * 1.8)
     }
 
     hex-tile {
@@ -229,7 +226,8 @@ export class PatternMaker extends LitElement {
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('wheel', this.updateScale.bind(this));
-    window.addEventListener('resize', this.updateDimensions.bind(this))
+    window.addEventListener('resize', this.updateDimensions.bind(this));
+
   }
 
   disconnectedCallback() {
@@ -244,17 +242,13 @@ export class PatternMaker extends LitElement {
     requestAnimationFrame(()=>{
       this.updateDimensions();
     });
-
-
   }
 
   updateDimensions(){
-    // requestAnimationFrame(() => {
       let hexDimension = this.shadowRoot.querySelector('hex-tile').getBoundingClientRect();
       console.log("🚀 ~ file: pattern-maker.ts:244 ~ PatternMaker ~ firstUpdated ~ hexDimension", hexDimension)
       this.style.setProperty('--hex-height', `${hexDimension.height}px`);
       this.style.setProperty('--hex-weight', `${hexDimension.height * Math.sqrt(3) / 2}px`);
-    // })
   }
 
   updateScale(event){

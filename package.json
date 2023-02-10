@@ -26,7 +26,6 @@
     "not IE 11"
   ],
   "devDependencies": {
-    "@lit-labs/virtualizer": "^1.0.1",
     "@sergeymakinen/vite-plugin-html-minimize": "^1.0.4",
     "@types/node": "^18.13.0",
     "@vaadin/router": "^1.7.4",
