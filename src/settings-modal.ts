@@ -107,8 +107,8 @@ export class SettingsModal extends InlineModal {
         name="spacing"
         type="range"
         min="0"
-        value="4"
-        max="35"
+        value="20"
+        max="100"
         @input="${this.updatePadding}"/>
 
       <button

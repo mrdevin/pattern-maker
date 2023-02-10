@@ -1,10 +1,9 @@
 import { html, css, LitElement } from 'lit';
-import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { ref, createRef } from 'lit/directives/ref.js';
-import { customElement, property } from 'lit/decorators.js';
+import { customElement, property, state } from 'lit/decorators.js';
 import html2canvas from 'html2canvas';
-
+import  Hammer  from 'hammerjs';
 import { saveAs } from 'file-saver';
 import './hex-tile';
 import  './settings-modal';
@@ -27,55 +26,47 @@ export class PatternMaker extends LitElement {
       --shadow-color: rgba(40, 40, 40, var(--shadow-color-alpha));
       --row-count: 25;
       --column-count: 25;
-      --hex-padding: 4px;
       --hex-height: 55px;
       --hex-width: calc(var(--hex-height) * 1.7320508075688772 / 2);
       --grid-scale: 1;
       display: block;
       position: relative;
-      padding: var(--app-padding);
+
       max-width: calc(100vw);
       min-height: calc(100vh);
       box-sizing: border-box;
-      overflow: hidden
-      padding: 0;
+      overflow: hidden;
       margin-top: 80px;
-      font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
+      font-family: 'JosefinSans', Tahoma, Verdana, sans-serif;
       background-color: var(--highlight-color);
     }
 
     #svgGrid {
       transform: scale(var(--grid-scale));
-      margin-bottom: calc(var(--hex-height) * 1.8)
+      position: relative;
+      border: 1px solid red;
+      position: absolute;
+      left: 0;
     }
 
     hex-tile {
-      --hex-spacing: var(--hex-padding);
+      content-visibility: auto;
+      contain-intrinsic-size: 86px 100px;
     }
 
     main {
       display: block;
       width:calc(100vw);
-      height:100vh;
+      height:calc(100vh - 80px - 25px);
       position: relative;
       flex-wrap: wrap;
       overflow: scroll;
       background-color: var(--highlight-color);
     }
 
-    .row {
-      display: flex;
-      flex-wrap: nowrap;
-      width: auto;
-      position: relative;
-        margin-bottom: calc(2px - (var(--hex-height) * 0.2886));
+    :host([noscroll]) main{
+      overflow: hidden;
     }
-
-    .row.odd-row{
-      position: relative;
-      left: calc(-0.05px + var(--hex-width)/2);
-    }
-
 
     .label {
       display: flex;
@@ -85,9 +76,6 @@ export class PatternMaker extends LitElement {
       justify-content: center;
     }
 
-    * {
-      box-sizing: border-box;
-    }
 
     :host([shouldSelectMany]) .selectBtn{
       font-weight: bold;
@@ -202,10 +190,13 @@ export class PatternMaker extends LitElement {
   currentColor = this.colors[2];
 
   @property({ type: String})
-  currentType = 'pointed'
+  currentType = 'pointed';
 
   @property({ type: Number })
-  previousWheelPosition = 0
+  previousWheelPosition = 0;
+
+  @property({ type: Number })
+  padding = 20;
 
   @property({ type: Array })
   selectedTiles = [];
@@ -216,51 +207,112 @@ export class PatternMaker extends LitElement {
   @property({ type: Boolean })
   hideGrid = false
 
+  @property({ type: Boolean, reflect: true })
+  noscroll = false
+
+  @state( )
+  noscrollTimeout;
+
   @property({ type: Boolean })
   hideGridSettings = true;
 
   @property({ type: Boolean , reflect: true})
   shouldSelectMany = false;
 
+  @state()
+  hammerInst;
+
 
   connectedCallback() {
     super.connectedCallback()
-    window.addEventListener('wheel', this.updateScale.bind(this));
+    window.addEventListener('wheel', this.wheelHandler.bind(this));
+    window.addEventListener('keydown', this.disableScroll.bind(this));
+    window.addEventListener('keyup', this.enableScroll.bind(this));
     window.addEventListener('resize', this.updateDimensions.bind(this));
+
+    requestAnimationFrame(() => {
+      this.hammerInst = new Hammer(this.shadowRoot.querySelector('main'));
+      this.hammerInst.get('pinch').set({ enable: true });
+
+      this.hammerInst.on('pinch', this.pinchHandler.bind(this));
+    })
 
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
-    window.removeEventListener('wheel', this.updateScale.bind(this));
-    window.addEventListener('resize', this.updateDimensions.bind(this))
+    window.removeEventListener('wheel', this.wheelHandler.bind(this));
+    window.removeEventListener('keydown', this.disableScroll.bind(this));
+    window.removeEventListener('keyup', this.enableScroll.bind(this));
+    window.removeEventListener('resize', this.updateDimensions.bind(this))
   }
 
   firstUpdated() {
-    console.log("🚀 ~ file: pattern-maker.ts:241 ~ PatternMaker ~ firstUpdated ~ firstUpdated")
     registerSW({ immediate: true });
     requestAnimationFrame(()=>{
       this.updateDimensions();
+
     });
   }
 
   updateDimensions(){
-      let hexDimension = this.shadowRoot.querySelector('hex-tile').getBoundingClientRect();
+      let hexDimension = this.shadowRoot.querySelector('hex-tile').shadowRoot.querySelector('path').getBoundingClientRect();
       console.log("🚀 ~ file: pattern-maker.ts:244 ~ PatternMaker ~ firstUpdated ~ hexDimension", hexDimension)
       this.style.setProperty('--hex-height', `${hexDimension.height}px`);
-      this.style.setProperty('--hex-weight', `${hexDimension.height * Math.sqrt(3) / 2}px`);
+      this.style.setProperty('--hex-weight', `${hexDimension.width}px`);
   }
 
-  updateScale(event){
+  disableScroll(event){
     if (!event.metaKey) return;
-    let currentScale = this.currentScale;
-    let factor = event.deltaY >= 0 ? .93 : 1.3;
-    let newScale = 0
-    newScale = currentScale * factor
-    newScale = newScale > 6 ? 6 : newScale;
-    newScale = newScale < .8 ? .8 : newScale;
+    this.noscroll = true;
+  }
+
+  enableScroll(event){
+    this.noscroll = false;
+  }
+
+  wheelHandler(event){
+    if (!event.metaKey) return;
+
+    //Clears timeout if it has been set
+    if (this.noscrollTimeout) {
+      clearTimeout(this.noscrollTimeout)
+    }
+
+    //Turns noscroll on
+    this.noscroll = true;
+
+    this.updateScale(event, event.deltaY);
+  }
+
+  pinchHandler(event) {
+
+    let newScale = event.scale;
+    newScale = Math.min(5, newScale); //Caps newscale at 6
+    newScale = Math.max(.6, newScale); //Sets min size to .6
+
+    //Sets the new scale
     this.currentScale = newScale;
-    this.style.setProperty("--grid-scale", `${newScale}` );
+    this.style.setProperty("--grid-scale", `${this.currentScale}`);
+  }
+
+
+  updateScale(event, marker) {
+    console.log("🚀 ~ file: pattern-maker.ts:269 ~ PatternMaker ~ updateScale ~ event", marker)
+
+    //Grabs all relevant values
+    let currentScale = this.currentScale;
+    let factor = marker >= 0 ? .99 : 1.01;
+
+    //Calculates the new scale depending on scale and factor
+    let newScale = currentScale * factor;
+    newScale = Math.min(6, newScale); //Caps newscale at 6
+    newScale = Math.max(.6, newScale); //Sets min size to .6
+
+    //Sets the new scale
+    this.currentScale = newScale;
+    this.style.setProperty("--grid-scale", `${newScale}`);
+
   }
 
   setColor(colorPosition: number){
@@ -279,9 +331,12 @@ export class PatternMaker extends LitElement {
     modal.hidden = !modal.hidden;
   }
 
-  deselect(){
+  deselectAll(): void{
     this.selectedTiles.forEach((tile)=>{
-      tile.selected = false
+      tile.selected = false;
+      if (!tile.active) {
+        tile.type = undefined;
+      }
     })
     this.selectedTiles = [];
   }
@@ -300,6 +355,10 @@ export class PatternMaker extends LitElement {
   }
 
   removeFromSelected(tile){
+    if (!tile.active){
+      tile.type = undefined;
+    }
+
     const tileIndex = this.selectedTiles.indexOf(tile)
     if (tileIndex > -1) {
       this.selectedTiles.splice(tileIndex, 1);
@@ -312,7 +371,7 @@ export class PatternMaker extends LitElement {
     if (event.metaKey || this.shouldSelectMany){
       this.selectedTiles.push(SvgElement);
     }else{
-      this.deselect();
+      this.deselectAll();
       this.selectedTiles.push(SvgElement);
     }
 
@@ -329,7 +388,7 @@ export class PatternMaker extends LitElement {
       SvgElement.color = this.currentColor.color;
     } else if (SvgElement.active && WasActive){
     }else{
-      this.deselect();
+      this.deselectAll();
     }
 
     requestAnimationFrame(()=>{
@@ -378,7 +437,8 @@ export class PatternMaker extends LitElement {
 
   updatePadding(event: any){
     const rangeValue = event.detail.padding;
-    this.style.setProperty('--hex-padding', `${rangeValue/50}rem`)
+    console.log("🚀 ~ file: pattern-maker.ts:381 ~ PatternMaker ~ updatePadding ~ rangeValue", parseInt(rangeValue))
+    this.padding = parseInt(rangeValue)
   }
 
   toggleSelectMany() {
@@ -397,8 +457,8 @@ export class PatternMaker extends LitElement {
   }
 
   save(){
-    this.deselect();
-    let hexGrid = this.shadowRoot.querySelector("#main");
+    this.deselectAll();
+    let hexGrid = this.shadowRoot.querySelector("#svgGrid");
     // @ts-ignore
     html2canvas(hexGrid).then( (canvas)=>{
       canvas.toBlob((blob)=>{
@@ -419,7 +479,7 @@ export class PatternMaker extends LitElement {
 
         <sf-switch @activeUpdated="${this.updateType}"></sf-switch>
         <button class="headerBtn selectBtn" @click="${this.toggleSelectMany}">${this.renderSelectTxt()}</button>
-        <button class="headerBtn" @click="${this.deselect}">Deselect All</button>
+        <button class="headerBtn" @click="${this.deselectAll}">Deselect All</button>
         <button
           class="gridSettings"
           name="Grid Settings"
@@ -443,7 +503,7 @@ export class PatternMaker extends LitElement {
         </button>
         <settings-modal
           @toggleHideGrid="${this.toggleHideGrid}"
-          @updatePadding="${this.updatePadding}">
+          @updatePadding="${this.updatePadding.bind(this)}">
         </settings-modal>
 
       </header>
@@ -453,24 +513,22 @@ export class PatternMaker extends LitElement {
             [...Array(this.rows).keys()],
             (row) => {  return `row${row}` },
             (row) => {
-              const classes = { 'odd-row': row % 2 };
-               return html`
-               <div class="row ${classMap(classes)}">
-               ${repeat([...Array(this.columns).keys()],
+              return html`
+                 ${repeat([...Array(this.columns).keys()],
                 (column) => {  return `row${row}column${column}` },
                 (column) => {
                   const tileRef = createRef();
-
                   return html`<hex-tile
-
                     ${ref(tileRef)}
                     ?hideGrid="${this.hideGrid}"
                     @click="${this.selectTile}"
                     column="${column}"
                     row="${row}"
                     size="55"
+                    spacingfactor="${this.padding}"
                     currentType="${this.currentType}">`
-                })}</div>`;
+                })}
+              `;
             })}
         </section>
       </main>

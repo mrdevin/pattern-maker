@@ -8,29 +8,21 @@ export enum TileType {
 export class HexTile extends LitElement {
   static styles = css`
     :host {
-      --hex-size: 0px;
-      --hex-spacing: 0px;
-      --hex-translate: translate(0px, 0px);
-      --hex-rotate: rotate(0);
-      --hex-width: 0px;
-      --hex-height: 0px;
-      display: flex;
-      padding: 0 var(--hex-spacing) var(--hex-spacing) 0;
+      --hex-width: 86px;
+      --hex-height: 100px;
+      --hex-top: 0px;
+      --hex-left: 0px;
+      position: absolute;
+      top: var(--hex-top);
+      left:var(--hex-left);
       display: block;
-      overflow: hidden;
-      box-sizing: border-box;
       cursor: default;
-      transform: var(--hex-translate), var(--hex-rotate);
-    }
-
-    svg {
-      width: 100%;
-      height: 100%;
-      display:block;
+      height: var(--hex-height);
+      width: var(--hex-width);
     }
 
     :host([selected]) .hex {
-      stroke-dasharray:2 1 3 1;
+      stroke-dasharray:5 3 5 3;
       animation:5s infinite normal marchingAnts linear;
     }
 
@@ -104,31 +96,40 @@ export class HexTile extends LitElement {
   hideGrid = false;
 
   @property({type: Number})
-  size = 60;
+  size = 50;
 
-  @state()
-  hexHeight = this.size;
+  @property()
+  hexHeight = this.size*2;
 
-  @state()
+  @property()
   hexWidth = this.hexHeight * Math.sqrt(3) / 2;
 
+  @property()
+  hexRadius = this.size ;
+
+  @property({ type: Number, reflect: false})
+  spacingFactor = 200;
+
+  positions() {
+    return [
+      (this.column - .4) * (this.hexWidth + this.spacingFactor) + (this.row % 2 === 0 ? this.hexWidth / 2 : 0) ,
+      (this.row ) * ((this.hexWidth * Math.sqrt(3) / 2) + this.spacingFactor) ]
+  }
+
   updated(changedProperties: Map<string, unknown>) {
-    if (changedProperties.has("size")) {
+    if (changedProperties.has("spacingFactor")) {
       this.setDimensions();
     }
   }
 
   setDimensions(){
-    this.hexWidth = this.size;
-    this.hexHeight = this.hexWidth * Math.sqrt(3) / 2;
-    this.style.setProperty('--hex-size', `${this.size}px`);
-    this.style.setProperty('--hex-width', `${this.hexWidth}px`);
-    this.style.setProperty('--hex-height', `${this.hexHeight}px`);
+    let positions = this.positions();
+    this.style.setProperty('--hex-top', `${positions[1]}px`);
+    this.style.setProperty('--hex-left', `${positions[0]}px`);
   }
 
   firstUpdated()  {
     this.setDimensions();
-    this.style.setProperty('--hex-size', `${this.size}px`);
   }
 
   getStrokeColor(){
@@ -177,7 +178,7 @@ export class HexTile extends LitElement {
 
   render() {
       return html`
-      <svg viewBox="0 0  ${86 } ${100 }">
+      <svg viewBox="0 0 86 100">
         <path
           class="hex"
           fill="${ this.active ? this.color : 'transparent'}"

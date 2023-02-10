@@ -86,13 +86,13 @@ export class PmFooter extends LitElement {
       border-right: 1px solid var(--shadow-color);
     } */
 
-    footer .split span:nth-of-type(1) {
+    footer .split span:nth-of-type(n1) {
       display: flex;
       grid-area: 1 / 2;
 
     }
 
-    footer .split span:nth-of-type(2) {
+    footer .split span:nth-of-type(n2) {
       display: flex;
       grid-area: 0 / 1;
       justify-self: center;
@@ -203,14 +203,56 @@ export class PmFooter extends LitElement {
     this.open = !this.open;
   }
 
+   calculatePacks(tilesWanted: number) {
+
+    let num9Packs = 0;
+    let num6Packs = 0;
+    let num3Packs = 0;
+    let remainingTiles = tilesWanted;
+
+    let totalCost = 0; //variable to store the total cost
+
+    // Calculate the number of packs of 9 tiles needed
+    num9Packs += Math.floor(remainingTiles / 9);
+    totalCost += 18 * num9Packs //calculate the cost of the 9 tile packages
+    remainingTiles = remainingTiles % 9;
+     if (remainingTiles >= 7) {
+      num9Packs++;
+      remainingTiles = 0;
+      totalCost += 18;
+    }
+
+    // Calculate the number of packs of 6 tiles needed
+    num6Packs += Math.floor(remainingTiles / 6);
+    totalCost += 15 * num6Packs //calculate the cost of the 6 tile packages
+    remainingTiles = remainingTiles % 6;
+    if (Math.ceil(remainingTiles / 3) >= 2){
+      num6Packs++;
+      remainingTiles = 0;
+      totalCost += 15;
+    }
+
+    // Calculate the number of packs of 3 tiles needed
+    num3Packs += Math.ceil(remainingTiles / 3);
+    totalCost += 11 * num3Packs //calculate the cost of the 3 tile packages
+
+    return { num9Packs, num6Packs, num3Packs, totalCost }; //return an object with the number of each package and the corresponding cost.
+  }
+
   renderColorCountList(tiles){
     let colorCountList = [];
     let tileColors = this.tilesByColor(tiles);
+
     Object.keys(tileColors).forEach(element => {
+      let PackSplit = this.calculatePacks(tileColors[element]);
       colorCountList.push(html`
         <div class="color">
-          <span>${element}</span>
           <span>${tileColors[element]}</span>
+          <span>${element} Tiles</span>
+
+          <span>${PackSplit.num9Packs}</span><span>9er Pakung </span>
+          <span>${PackSplit.num6Packs}</span><span>6er Pakung </span>
+          <span>${PackSplit.num3Packs}</span><span>3er Pakung </span>
         </div>
       `);
     });

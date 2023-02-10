@@ -1,15 +1,28 @@
 import { LitElement } from 'lit';
+export declare enum TileType {
+    Pointed = "pointed",
+    Flat = "flat"
+}
 export declare class HexTile extends LitElement {
     static styles: import("lit").CSSResult;
     color: string;
-    type: string;
+    type: any;
+    currentType: string;
     selected: boolean;
+    row: number;
+    column: number;
     active: boolean;
     hideGrid: boolean;
-    getStrokeColor(): "transparent" | "#008bf8" | "gray";
-    getAnimation(): "stroke-dasharray: 15 8; animation 20s infinite normal marchingAnts linear; " | "";
-    getStrokeWidth(): "15px" | "0px" | "5px";
+    size: number;
+    hexHeight: number;
+    hexWidth: number;
+    updated(changedProperties: Map<string, unknown>): void;
+    setDimensions(): void;
+    firstUpdated(): void;
+    getStrokeColor(): "transparent" | "rgba(280,280,280,.8)" | "gray";
+    getStrokeWidth(): "5px" | "0px" | "1px";
     fireClick(event: any): void;
+    renderPonts(): import("lit").TemplateResult<2> | "";
     render(): import("lit").TemplateResult<1>;
 }
 declare global {

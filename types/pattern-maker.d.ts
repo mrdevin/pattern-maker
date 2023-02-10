@@ -1,4 +1,5 @@
 import { LitElement } from 'lit';
+import './hex-tile';
 import './settings-modal';
 import './sf-dropdown';
 import './sf-switch';
@@ -9,8 +10,9 @@ export declare class PatternMaker extends LitElement {
      * The name to say "Hello" to.
      */
     rows: number;
-    toggleType: string;
     columns: number;
+    currentScale: number;
+    toggleType: string;
     colors: {
         name: string;
         color: string;
@@ -20,18 +22,21 @@ export declare class PatternMaker extends LitElement {
         color: string;
     };
     currentType: string;
+    previousWheelPosition: number;
     selectedTiles: any[];
     activeTiles: any[];
     hideGrid: boolean;
     hideGridSettings: boolean;
     shouldSelectMany: boolean;
-    constructor();
+    connectedCallback(): void;
+    disconnectedCallback(): void;
     firstUpdated(): void;
-    updateGridWidth(): void;
+    updateDimensions(): void;
+    updateScale(event: any): void;
     setColor(colorPosition: number): void;
     updateType(event: any): void;
     toggleGridSetting(): void;
-    deselect(): void;
+    deselectAll(): void;
     beforeUnloadListener(event: any): string;
     checkUnload(): void;
     removeFromSelected(tile: any): void;
@@ -39,12 +44,8 @@ export declare class PatternMaker extends LitElement {
     updateSelectedTiles(param: any): void;
     toggleHideGrid(event: any): void;
     isSelected(ref: any): void;
-    hexColumns(): any[];
-    hexGrid(): any[];
     colorList(): any[];
     updatePadding(event: any): void;
-    updateColumns(event: any): void;
-    updateRows(event: any): void;
     toggleSelectMany(): void;
     getActiveTiles(): void;
     renderSelectTxt(): "Selecting Many" | "Select Many";

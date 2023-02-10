@@ -13,6 +13,7 @@
   "dependencies": {
     "@pwabuilder/pwainstall": "^1.6.7",
     "@vaadin/router": "^1.7.4",
+    "hammerjs": "^2.0.8",
     "html2canvas": "^1.4.1",
     "lit": "^2.6.1",
     "normalize.css": "^8.0.1",
