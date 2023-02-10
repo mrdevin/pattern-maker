@@ -4,14 +4,24 @@ export enum TileType {
   Pointed = "pointed",
   Flat = "flat"
 }
+
+export enum GridType {
+  PointedUp = "pointed-up",
+  FlatUp = "flat-up"
+}
 @customElement('hex-tile')
 export class HexTile extends LitElement {
   static styles = css`
     :host {
       --hex-width: 86px;
       --hex-height: 100px;
+      --hex-rotation: 0;
       --hex-top: 0px;
       --hex-left: 0px;
+      transform: rotate(var(--hex-rotation));
+      transition-property: transform, top, --hex-left;
+      transition-duration: .5s;
+      transition-timing-function: linear;
       position: absolute;
       top: var(--hex-top);
       left:var(--hex-left);
@@ -27,11 +37,13 @@ export class HexTile extends LitElement {
     }
 
     svg path {
+
       cursor: pointer;
     }
 
     .hex {
       transform-origin: center;
+      transition: stroke .5s linear;
     }
 
     .shadows,
@@ -44,7 +56,7 @@ export class HexTile extends LitElement {
       transition: opacity .5s linear;
     }
 
-    :host([hidegrid]:not([active])) .shadows{
+    :host([hidegrid]:not([active])) .shadows {
       opacity: 0;
     }
 
@@ -110,26 +122,50 @@ export class HexTile extends LitElement {
   @property({ type: Number, reflect: false})
   spacingFactor = 200;
 
+  @property({type: String})
+  gridType: GridType;
+
+
   positions() {
-    return [
-      (this.column - .4) * (this.hexWidth + this.spacingFactor) + (this.row % 2 === 0 ? this.hexWidth / 2 : 0) ,
-      (this.row ) * ((this.hexWidth * Math.sqrt(3) / 2) + this.spacingFactor) ]
+    if (this.gridType === GridType.PointedUp) {
+      return [
+        (this.column - .4) * (this.hexWidth + this.spacingFactor) + (this.row % 2 === 0 ? this.hexWidth / 2 : 0),
+        (this.row) * ((this.hexWidth * Math.sqrt(3) / 2) + this.spacingFactor)]
+    } else {
+      return [
+        (this.column - .4) * (this.hexHeight + this.spacingFactor) + (this.row % 2 === 0 ? this.hexHeight / 2 : 0),
+        (this.row) * ((this.hexHeight * Math.sqrt(3) / 2) + this.spacingFactor)]
+    }
+
   }
 
   updated(changedProperties: Map<string, unknown>) {
     if (changedProperties.has("spacingFactor")) {
-      this.setDimensions();
+      this.setLayout();
+    }
+
+    if (changedProperties.has("gridType")) {
+      this.setRotation();
+      this.setLayout();
     }
   }
 
-  setDimensions(){
+  setRotation(){
+    if(this.gridType === GridType.PointedUp){
+      this.style.setProperty('--hex-rotation', '0deg');
+    }else{
+      this.style.setProperty('--hex-rotation', '90deg');
+    }
+  }
+
+  setLayout(){
     let positions = this.positions();
     this.style.setProperty('--hex-top', `${positions[1]}px`);
     this.style.setProperty('--hex-left', `${positions[0]}px`);
   }
 
   firstUpdated()  {
-    this.setDimensions();
+    this.setLayout();
   }
 
   getStrokeColor(){
@@ -147,7 +183,7 @@ export class HexTile extends LitElement {
       return '0px';
     }
 
-    return '1px';
+    return '2px';
 
   }
 
@@ -163,6 +199,7 @@ export class HexTile extends LitElement {
 
   renderPonts(){
     if ((this.currentType === TileType.Pointed && this.type !== TileType.Flat) || (this.currentType === TileType.Flat && this.type === TileType.Pointed) || (this.currentType === TileType.Pointed && this.type === TileType.Pointed) ){
+
       return svg`<g class="shadows">
           <path class="shad1" d="M86,24.9L43,49.7l43,24.9V24.9z"></path>
           <path class="shad2" d="M43,99.4l43-24.8L43,49.7V99.4z"></path>

@@ -13,6 +13,10 @@ import  './pm-footer';
 
 import { registerSW } from 'virtual:pwa-register';
 
+export enum GridType {
+  PointedUp = "pointed-up",
+  FlatUp = "flat-up"
+}
 @customElement('pattern-maker')
 export class PatternMaker extends LitElement {
 
@@ -222,6 +226,9 @@ export class PatternMaker extends LitElement {
   @state()
   hammerInst;
 
+  @state()
+  gridType = GridType.PointedUp;
+
 
   connectedCallback() {
     super.connectedCallback()
@@ -296,7 +303,6 @@ export class PatternMaker extends LitElement {
     this.style.setProperty("--grid-scale", `${this.currentScale}`);
   }
 
-
   updateScale(_event, marker) {
     console.log("🚀 ~ file: pattern-maker.ts:269 ~ PatternMaker ~ updateScale ~ event", marker)
 
@@ -339,6 +345,10 @@ export class PatternMaker extends LitElement {
       }
     })
     this.selectedTiles = [];
+  }
+
+  toggleGridType(){
+    this.gridType = this.gridType === GridType.PointedUp ? GridType.FlatUp : GridType.PointedUp;
   }
 
   beforeUnloadListener (event){
@@ -455,6 +465,12 @@ export class PatternMaker extends LitElement {
     }
     return 'Select Many';
   }
+  renderGridTxt(){
+    if (this.gridType === GridType.PointedUp){
+      return 'Pointed Sides up';
+    }
+    return 'Flat Sides up';
+  }
 
   save(){
     this.deselectAll();
@@ -480,6 +496,7 @@ export class PatternMaker extends LitElement {
         <sf-switch @activeUpdated="${this.updateType}"></sf-switch>
         <button class="headerBtn selectBtn" @click="${this.toggleSelectMany}">${this.renderSelectTxt()}</button>
         <button class="headerBtn" @click="${this.deselectAll}">Deselect All</button>
+        <button class="headerBtn" @click="${this.toggleGridType}">${this.renderGridTxt()}</button>
         <button
           class="gridSettings"
           name="Grid Settings"
@@ -525,6 +542,7 @@ export class PatternMaker extends LitElement {
                     column="${column}"
                     row="${row}"
                     size="55"
+                    gridtype="${this.gridType}"
                     spacingfactor="${this.padding}"
                     currentType="${this.currentType}">`
                 })}
