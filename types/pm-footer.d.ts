@@ -13,6 +13,12 @@ export declare class PmFooter extends LitElement {
     getColorNameFor(color: any): string;
     tilesByColor(tiles: any): Object;
     toggleOpen(): void;
+    calculatePacks(tilesWanted: number): {
+        num9Packs: number;
+        num6Packs: number;
+        num3Packs: number;
+        totalCost: number;
+    };
     renderColorCountList(tiles: any): any[];
     save(): void;
     render(): import("lit").TemplateResult<1>;

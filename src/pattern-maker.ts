@@ -267,7 +267,7 @@ export class PatternMaker extends LitElement {
     this.noscroll = true;
   }
 
-  enableScroll(event){
+  enableScroll(){
     this.noscroll = false;
   }
 
@@ -297,7 +297,7 @@ export class PatternMaker extends LitElement {
   }
 
 
-  updateScale(event, marker) {
+  updateScale(_event, marker) {
     console.log("🚀 ~ file: pattern-maker.ts:269 ~ PatternMaker ~ updateScale ~ event", marker)
 
     //Grabs all relevant values

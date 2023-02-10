@@ -16,6 +16,9 @@ export declare class HexTile extends LitElement {
     size: number;
     hexHeight: number;
     hexWidth: number;
+    hexRadius: number;
+    spacingFactor: number;
+    positions(): number[];
     updated(changedProperties: Map<string, unknown>): void;
     setDimensions(): void;
     firstUpdated(): void;
