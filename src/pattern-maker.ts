@@ -1,14 +1,17 @@
-import { html, css, svg, LitElement } from 'lit';
+import { html, css, LitElement } from 'lit';
+import { classMap } from 'lit/directives/class-map.js';
 import { repeat } from 'lit/directives/repeat.js';
 import { ref, createRef } from 'lit/directives/ref.js';
 import { customElement, property } from 'lit/decorators.js';
 import html2canvas from 'html2canvas';
+
 import { saveAs } from 'file-saver';
 import './hex-tile';
 import  './settings-modal';
 import  './sf-dropdown';
 import  './sf-switch';
 import  './pm-footer';
+
 import { registerSW } from 'virtual:pwa-register';
 
 @customElement('pattern-maker')
@@ -24,7 +27,9 @@ export class PatternMaker extends LitElement {
       --shadow-color: rgba(40, 40, 40, var(--shadow-color-alpha));
       --row-count: 25;
       --column-count: 25;
-      --hex-size: 55px;
+      --hex-padding: 4px;
+      --hex-height: 55px;
+      --hex-width: calc(var(--hex-height) * 1.7320508075688772 / 2);
       --grid-scale: 1;
       display: block;
       position: relative;
@@ -32,30 +37,48 @@ export class PatternMaker extends LitElement {
       max-width: calc(100vw);
       min-height: calc(100vh);
       box-sizing: border-box;
-      overflow: hidden;
+      overflow: hidden
       padding: 0;
       margin-top: 80px;
       font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
       background-color: var(--highlight-color);
     }
 
-
     #svgGrid {
       transform: scale(var(--grid-scale));
       position: absolute;
-      display:block;
-      width: calc(var(--column-count) * var(--hex-size) );
-      height: calc(var(--row-count) * var(--hex-size) );
+      top: 0;
+      left: 0;
+      margin-bottom: calc(var(--hex-height) * 2.5)
+    }
+
+    hex-tile {
+      --hex-spacing: var(--hex-padding);
     }
 
     main {
       display: block;
-      width:100vw;
+      width:calc(100vw);
       height:100vh;
+      position: relative;
       flex-wrap: wrap;
-      overflow: hidden;
+      overflow: scroll;
       background-color: var(--highlight-color);
     }
+
+    .row {
+      display: flex;
+      flex-wrap: nowrap;
+      width: auto;
+      position: relative;
+        margin-bottom: calc(2px - (var(--hex-height) * 0.2886));
+    }
+
+    .row.odd-row{
+      position: relative;
+      left: calc(-0.05px + var(--hex-width)/2);
+    }
+
 
     .label {
       display: flex;
@@ -110,11 +133,6 @@ export class PatternMaker extends LitElement {
       margin-right: .5em
     }
 
-    /* hex-tile {
-      --hex-size: var(--hex-calc-size);
-      --hex-spacing: var(--hex-padding)
-    } */
-
     .gridSettings {
       margin-left: auto;
       margin-right: 10px;
@@ -129,19 +147,6 @@ export class PatternMaker extends LitElement {
       color: var(--shadow-color);
       font-family: 'JosefinSans', Tahoma, Verdana, Segoe, sans-serif;
     }
-    /*
-    .row {
-      display: flex;
-      flex-wrap: nowrap;
-      position:relative;
-      left: calc(var(--hex-calc-size)/4);
-      margin-bottom: calc(4px - var(--hex-calc-size)/3)
-    }
-
-    .row:nth-of-type(2n){
-      position: relative;
-      left: calc(0px  - var(--hex-calc-size)/4);
-    } */
 
     header > svg {
       width: 30px;
@@ -168,7 +173,6 @@ export class PatternMaker extends LitElement {
     a[name="Forest Green"] i {
       color: rgb(30, 112, 22);
     }
-
   `]
 
   /**
@@ -225,26 +229,42 @@ export class PatternMaker extends LitElement {
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('wheel', this.updateScale.bind(this));
-
+    window.addEventListener('resize', this.updateDimensions.bind(this))
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
     window.removeEventListener('wheel', this.updateScale.bind(this));
+    window.addEventListener('resize', this.updateDimensions.bind(this))
   }
 
   firstUpdated() {
+    console.log("🚀 ~ file: pattern-maker.ts:241 ~ PatternMaker ~ firstUpdated ~ firstUpdated")
     registerSW({ immediate: true });
+    requestAnimationFrame(()=>{
+      this.updateDimensions();
+    });
+
+
+  }
+
+  updateDimensions(){
+    // requestAnimationFrame(() => {
+      let hexDimension = this.shadowRoot.querySelector('hex-tile').getBoundingClientRect();
+      console.log("🚀 ~ file: pattern-maker.ts:244 ~ PatternMaker ~ firstUpdated ~ hexDimension", hexDimension)
+      this.style.setProperty('--hex-height', `${hexDimension.height}px`);
+      this.style.setProperty('--hex-weight', `${hexDimension.height * Math.sqrt(3) / 2}px`);
+    // })
   }
 
   updateScale(event){
     if (!event.metaKey) return;
     let currentScale = this.currentScale;
-    let factor = event.deltaY >= 0 ? 1.2 : .90;
+    let factor = event.deltaY >= 0 ? .93 : 1.3;
     let newScale = 0
     newScale = currentScale * factor
-    newScale = newScale > 4 ? 4 : newScale;
-    newScale = newScale < .5 ? .5 : newScale;
+    newScale = newScale > 6 ? 6 : newScale;
+    newScale = newScale < .8 ? .8 : newScale;
     this.currentScale = newScale;
     this.style.setProperty("--grid-scale", `${newScale}` );
   }
@@ -294,9 +314,8 @@ export class PatternMaker extends LitElement {
   }
 
   selectTile(event: any){
-    console.log("🚀 ~ file: pattern-maker.ts:303 ~ PatternMaker ~ selectTile ~ event", event, event.target)
     const SvgElement = event.target;
-    if (event.metakey || this.shouldSelectMany){
+    if (event.metaKey || this.shouldSelectMany){
       this.selectedTiles.push(SvgElement);
     }else{
       this.deselect();
@@ -368,15 +387,6 @@ export class PatternMaker extends LitElement {
     this.style.setProperty('--hex-padding', `${rangeValue/50}rem`)
   }
 
-  updateColumns(event: any) {
-    this.columns = event.detail.columns;
-    this.style.setProperty("--column-count", this.columns.toString());
-  }
-
-  updateRows(event: any) {
-    this.rows = event.detail.rows;
-  }
-
   toggleSelectMany() {
     this.shouldSelectMany = !this.shouldSelectMany;
   }
@@ -439,9 +449,7 @@ export class PatternMaker extends LitElement {
         </button>
         <settings-modal
           @toggleHideGrid="${this.toggleHideGrid}"
-          @updatePadding="${this.updatePadding}"
-          @updateColumns="${this.updateColumns}"
-          @updateRows="${this.updateRows}">
+          @updatePadding="${this.updatePadding}">
         </settings-modal>
 
       </header>
@@ -451,19 +459,24 @@ export class PatternMaker extends LitElement {
             [...Array(this.rows).keys()],
             (row) => {  return `row${row}` },
             (row) => {
-              return repeat([...Array(this.columns).keys()],
+              const classes = { 'odd-row': row % 2 };
+               return html`
+               <div class="row ${classMap(classes)}">
+               ${repeat([...Array(this.columns).keys()],
                 (column) => {  return `row${row}column${column}` },
                 (column) => {
                   const tileRef = createRef();
+
                   return html`<hex-tile
+
                     ${ref(tileRef)}
                     ?hideGrid="${this.hideGrid}"
-                    @tileClick="${this.selectTile}"
+                    @click="${this.selectTile}"
                     column="${column}"
                     row="${row}"
                     size="55"
                     currentType="${this.currentType}">`
-                })
+                })}</div>`;
             })}
         </section>
       </main>

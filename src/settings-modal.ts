@@ -71,11 +71,6 @@ export class SettingsModal extends InlineModal {
     }
   `}
 
-  @property({ type: Number })
-  rows = 15;
-
-  @property({ type: Number })
-  columns = 8;
 
   @property({ type: Number })
   padding = 8;
@@ -103,26 +98,6 @@ export class SettingsModal extends InlineModal {
     this.dispatchEvent(new CustomEvent('updatePadding', options));
   }
 
-  updateColumns(event: any) {
-    this.columns = event.target.value;
-    const options = {
-      detail: { columns: this.columns },
-      bubbles: true,
-      composed: true
-    };
-    this.dispatchEvent(new CustomEvent('updateColumns', options));
-  }
-
-  updateRows(event: any) {
-    this.rows = event.target.value;
-    const options = {
-      detail: { rows: this.rows },
-      bubbles: true,
-      composed: true
-    };
-    this.dispatchEvent(new CustomEvent('updateRows', options));
-  }
-
   render() {
     return html`
       <label>
@@ -133,30 +108,8 @@ export class SettingsModal extends InlineModal {
         type="range"
         min="0"
         value="4"
-        max="100"
+        max="35"
         @input="${this.updatePadding}"/>
-
-      <label>
-        Columns (${this.columns})
-      </label>
-      <input
-        name="columns"
-        type="range"
-        min="5"
-        value="${this.columns}"
-        max="30"
-        @input="${this.updateColumns}"/>
-
-      <label>
-        Rows (${this.rows})
-      </label>
-      <input
-        name="rows"
-        type="range"
-        min="12"
-        value="${this.rows}"
-        max="60"
-        @input="${this.updateRows}"/>
 
       <button
         @click="${this.toggleHideGrid}"

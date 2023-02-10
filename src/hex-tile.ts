@@ -1,6 +1,5 @@
 import { css, LitElement, html, svg } from 'lit'
 import { customElement, property, state } from 'lit/decorators.js'
-import { unsafeHTML } from 'lit/directives/unsafe-html.js';
 export enum TileType {
   Pointed = "pointed",
   Flat = "flat"
@@ -11,25 +10,25 @@ export class HexTile extends LitElement {
     :host {
       --hex-size: 0px;
       --hex-spacing: 0px;
-      --hex-translate: translate(0, 0);
+      --hex-translate: translate(0px, 0px);
       --hex-rotate: rotate(0);
       --hex-width: 0px;
       --hex-height: 0px;
+      display: flex;
+      padding: 0 var(--hex-spacing) var(--hex-spacing) 0;
       display: block;
-      width: var(--hex-width);
-      height: var(--hex-height);
+      overflow: hidden;
       box-sizing: border-box;
       cursor: default;
-      transform:var(--hex-translate), var(--hex-rotate);
-      position: absolute;
-      top: var(--hex-left);
-      left: var(--hex-top);
+      transform: var(--hex-translate), var(--hex-rotate);
     }
 
     svg {
       width: 100%;
       height: 100%;
+      display:block;
     }
+
     :host([selected]) .hex {
       stroke-dasharray:2 1 3 1;
       animation:5s infinite normal marchingAnts linear;
@@ -46,6 +45,15 @@ export class HexTile extends LitElement {
     .shadows,
     .shadows path {
       pointer-events: none;
+    }
+
+    .shadows {
+      opacity: 1;
+      transition: opacity .5s linear;
+    }
+
+    :host([hidegrid]:not([active])) .shadows{
+      opacity: 0;
     }
 
     .shad1{opacity:0.1; fill: black}
@@ -96,57 +104,31 @@ export class HexTile extends LitElement {
   hideGrid = false;
 
   @property({type: Number})
-  size = 55.0145;
+  size = 60;
 
   @state()
-  hexWidth = this.size;
+  hexHeight = this.size;
 
   @state()
-  hexHeight = this.hexWidth * Math.sqrt(3) / 2;
-
-  @state()
-  hexX = (this.column * this.hexWidth) + (this.row % 2 === 0 ? this.hexWidth / 2 : 0);
-
-  @state()
-  hexY = this.row * this.hexHeight;
-
-  @state()
-  hexRadius = this.size / 2;
-
-  translations() {
-    const spacingFactor = 100 / 100
-    return [`${((this.hexRadius + this.hexX) * spacingFactor) - (this.size)}px`,
-              `${((this.hexRadius + this.hexY) * spacingFactor) - ((this.size * 1.8))}px`]
-  }
+  hexWidth = this.hexHeight * Math.sqrt(3) / 2;
 
   updated(changedProperties: Map<string, unknown>) {
     if (changedProperties.has("size")) {
       this.setDimensions();
     }
-
-    if (changedProperties.has("type") || changedProperties.has("currentType")) {
-      console.log('type, currentType', this.type, this.currentType)
-    }
   }
 
   setDimensions(){
-    this.style.transform = ` rotate(${this.rotations()})`;
+    this.hexWidth = this.size;
+    this.hexHeight = this.hexWidth * Math.sqrt(3) / 2;
     this.style.setProperty('--hex-size', `${this.size}px`);
-    this.style.setProperty('--hex-top', `${this.translations()[0]}`);
-    this.style.setProperty('--hex-left', `${this.translations()[1]}`);
-    this.style.setProperty('--hex-rotate', `rotate(${this.rotations()})`);
     this.style.setProperty('--hex-width', `${this.hexWidth}px`);
     this.style.setProperty('--hex-height', `${this.hexHeight}px`);
   }
 
   firstUpdated()  {
-    // console.log("🚀 ~ file: hex-tile.ts:132 ~ HexTile ~ firstUpdated ~ firstUpdated")
     this.setDimensions();
     this.style.setProperty('--hex-size', `${this.size}px`);
-  }
-
-  rotations() {
-    return `0, 0, 0`;
   }
 
   getStrokeColor(){
@@ -180,13 +162,13 @@ export class HexTile extends LitElement {
 
   renderPonts(){
     if ((this.currentType === TileType.Pointed && this.type !== TileType.Flat) || (this.currentType === TileType.Flat && this.type === TileType.Pointed) || (this.currentType === TileType.Pointed && this.type === TileType.Pointed) ){
-      return svg`<g class="shadows" >
-          <path class="shad1" d="M47.6 13.8 23.8 27.5l23.8 13.8V13.8z"></path>
-          <path class="shad2" d="m23.8 55 23.8-13.7-23.8-13.8z"></path>
-          <path class="shad3" d="M0 41.3 23.8 55V27.5z"></path>
-          <path class="shad4" d="M0 13.8v27.5l23.8-13.8z"></path>
-          <path class="shad1" d="M23.8 0 0 13.8l23.8 13.7z"></path>
-          <path class="shad5" d="M47.6 13.8 23.8 0v27.5z"></path>
+      return svg`<g class="shadows">
+          <path class="shad1" d="M86,24.9L43,49.7l43,24.9V24.9z"></path>
+          <path class="shad2" d="M43,99.4l43-24.8L43,49.7V99.4z"></path>
+          <path class="shad3" d="M0,74.6l43,24.8V49.7L0,74.6z"></path>
+          <path class="shad4" d="M0,24.9v49.7l43-24.9L0,24.9z"></path>
+          <path class="shad1" d="M43,0L0,24.9l43,24.8V0z"></path>
+          <path class="shad5" d="M86,24.9L43,0v49.7L86,24.9z"></path>
         </g>`;
     }else{
       return ``;
@@ -195,15 +177,14 @@ export class HexTile extends LitElement {
 
   render() {
       return html`
-      <svg viewBox="0 0 ${this.hexHeight} ${this.hexWidth}"
-        style="enable-background:new 0 0 ${this.hexHeight} ${this.hexWidth}">
+      <svg viewBox="0 0  ${86 } ${100 }">
         <path
           class="hex"
           fill="${ this.active ? this.color : 'transparent'}"
           stroke="${this.getStrokeColor()}"
           stroke-width="${this.getStrokeWidth()}"
           @click=${this.fireClick}
-          d="M47.6 13.8v27.5L23.8 55 0 41.3V13.8L23.8 0z"></path>
+          d="M86,24.9v49.7L43,99.4L0,74.6V24.9L43,0L86,24.9z"></path>
         ${this.renderPonts()}
 
     </svg>

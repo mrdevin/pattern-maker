@@ -26,8 +26,9 @@
     "not IE 11"
   ],
   "devDependencies": {
+    "@lit-labs/virtualizer": "^1.0.1",
     "@sergeymakinen/vite-plugin-html-minimize": "^1.0.4",
-    "@types/node": "^18.11.18",
+    "@types/node": "^18.13.0",
     "@vaadin/router": "^1.7.4",
     "file-saver": "^2.0.5",
     "postcss": "^8.4.21",
@@ -36,11 +37,11 @@
     "rollup-plugin-imagemin": "^0.4.1",
     "rollup-plugin-minify-html-literals": "^1.2.6",
     "rollup-plugin-visualizer": "^5.9.0",
-    "typescript": "^4.9.4",
+    "typescript": "^4.9.5",
     "typescript-lit-html-plugin": "^0.9.0",
-    "vite": "^4.0.4",
+    "vite": "^4.1.1",
     "vite-plugin-favicons-inject": "^2.2.0",
-    "vite-plugin-pwa": "^0.14.1",
+    "vite-plugin-pwa": "^0.14.3",
     "vite-plugin-radar": "^0.7.0"
   },
   "prettier": {
