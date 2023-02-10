@@ -211,12 +211,6 @@ export class PatternMaker extends LitElement {
   @property({ type: Boolean })
   hideGrid = false
 
-  @property({ type: Boolean, reflect: true })
-  noscroll = false
-
-  @state( )
-  noscrollTimeout;
-
   @property({ type: Boolean })
   hideGridSettings = true;
 
@@ -275,19 +269,12 @@ export class PatternMaker extends LitElement {
   }
 
   enableScroll(){
-    this.noscroll = false;
+    let { noscroll } = this;
+    noscroll = false;
   }
 
   wheelHandler(event){
     if (!event.metaKey) return;
-
-    //Clears timeout if it has been set
-    if (this.noscrollTimeout) {
-      clearTimeout(this.noscrollTimeout)
-    }
-
-    //Turns noscroll on
-    this.noscroll = true;
 
     this.updateScale(event, event.deltaY);
   }
@@ -304,8 +291,8 @@ export class PatternMaker extends LitElement {
   }
 
   panhHandler(event) {
-    event.target.scrollLeft = event.target.scrollLeft - ( event.deltaX /12);
-    event.target.scrollTop = event.target.scrollTop - ( event.deltaY /12);
+    event.target.scrollLeft = event.target.scrollLeft - ( event.deltaX /32);
+    event.target.scrollTop = event.target.scrollTop - ( event.deltaY /32);
   }
 
   updateScale(_event, marker) {
@@ -326,7 +313,8 @@ export class PatternMaker extends LitElement {
   }
 
   setColor(colorPosition: number){
-    this.currentColor = this.colors[colorPosition];
+    let { colors } = this;
+    this.currentColor = colors[colorPosition];
     this.updateSelectedTiles('color');
   }
 
@@ -369,18 +357,20 @@ export class PatternMaker extends LitElement {
   }
 
   removeFromSelected(tile){
+    let { selectedTiles } = this;
     if (!tile.active){
       tile.type = undefined;
     }
 
-    const tileIndex = this.selectedTiles.indexOf(tile)
+    const tileIndex = selectedTiles.indexOf(tile)
     if (tileIndex > -1) {
-      this.selectedTiles.splice(tileIndex, 1);
-      this.selectedTiles = this.selectedTiles.slice();
+      selectedTiles.splice(tileIndex, 1);
+      selectedTiles = selectedTiles.slice();
     }
   }
 
   selectTile(event: any){
+
     const SvgElement = event.target;
     if (event.metaKey || this.shouldSelectMany){
       this.selectedTiles.push(SvgElement);
@@ -412,14 +402,16 @@ export class PatternMaker extends LitElement {
   }
 
   updateSelectedTiles(param){
-    this.selectedTiles.forEach((tile) => {
+    let { selectedTiles  } = this;
+    selectedTiles.forEach((tile) => {
+      let { currentColor, currentType } = this;
       if(tile.selected){
         if (param === 'type'){
-          tile.type =  this.currentType;
+          tile.type =  currentType;
         }
 
         if (param === 'color') {
-          tile.color = this.currentColor.color;
+          tile.color = currentColor.color;
         }
       }
     });
@@ -429,10 +421,6 @@ export class PatternMaker extends LitElement {
 
   toggleHideGrid(event: any){
     this.hideGrid = event.detail.hideGrid;
-  }
-
-  isSelected(ref){
-    this.selectedTiles.includes(ref);
   }
 
   colorList(){
@@ -459,7 +447,8 @@ export class PatternMaker extends LitElement {
   }
 
   getActiveTiles(){
-    this.activeTiles =  Array.from(this.shadowRoot.querySelectorAll('hex-tile[active]'));
+    let { shadowRoot } = this;
+    this.activeTiles =  Array.from(shadowRoot.querySelectorAll('hex-tile[active]'));
   }
 
   renderSelectTxt(){
@@ -468,6 +457,7 @@ export class PatternMaker extends LitElement {
     }
     return 'Select Many';
   }
+
   renderGridTxt(){
     if (this.gridType === GridType.PointedUp){
       return 'Pointed Sides up';
@@ -489,10 +479,11 @@ export class PatternMaker extends LitElement {
   }
 
   render() {
+    const { currentColor, columns, rows, hideGrid, gridType, padding, currentType } = this;
     return html`
       <header>
 
-        <sf-dropdown btncolor="${this.currentColor.color}" title="Select Color">
+        <sf-dropdown btncolor="${currentColor.color}" title="Select Color">
           ${this.colorList()}
         </sf-dropdown>
 
@@ -530,24 +521,24 @@ export class PatternMaker extends LitElement {
       <main>
         <section id="svgGrid">
           ${repeat(
-            [...Array(this.rows).keys()],
+            [...Array(rows).keys()],
             (row) => {  return `row${row}` },
             (row) => {
               return html`
-                 ${repeat([...Array(this.columns).keys()],
+                 ${repeat([...Array(columns).keys()],
                 (column) => {  return `row${row}column${column}` },
                 (column) => {
                   const tileRef = createRef();
                   return html`<hex-tile
                     ${ref(tileRef)}
-                    ?hideGrid="${this.hideGrid}"
+                    ?hideGrid="${hideGrid}"
                     @click="${this.selectTile}"
                     column="${column}"
                     row="${row}"
                     size="55"
-                    gridtype="${this.gridType}"
-                    spacingfactor="${this.padding}"
-                    currentType="${this.currentType}">`
+                    gridtype="${gridType}"
+                    spacingfactor="${padding}"
+                    currentType="${currentType}">`
                 })}
               `;
             })}

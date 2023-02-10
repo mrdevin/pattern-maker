@@ -87,10 +87,10 @@ export class HexTile extends LitElement {
   color = "rgb(26, 63, 169)";
 
   @property({ type: TileType })
-  type;
+  type =  undefined;
 
   @property({ type: TileType })
-  currentType = "pointed" || "flat";
+  currentType = TileType.Pointed;
 
   @property({ type: Boolean, reflect: true })
   selected = false;
@@ -126,14 +126,15 @@ export class HexTile extends LitElement {
   gridType: GridType;
 
   positions() {
-    if (this.gridType === GridType.PointedUp) {
+    const { hexWidth, hexHeight, spacingFactor, row, column, gridType } = this;
+    if (gridType === GridType.PointedUp) {
       return [
-        (this.column - .4) * (this.hexWidth + this.spacingFactor) + (this.row % 2 === 0 ? this.hexWidth / 2 : 0),
-        (this.row) * ((this.hexWidth * Math.sqrt(3) / 2) + this.spacingFactor)]
+        (column - .4) * (hexWidth + spacingFactor) + (row % 2 === 0 ? hexWidth / 2 : 0),
+        (row) * ((hexWidth * Math.sqrt(3) / 2) + spacingFactor)]
     } else {
       return [
-        (this.column - .4) * (this.hexHeight + this.spacingFactor) + (this.row % 2 === 0 ? this.hexHeight / 2 : 0),
-        (this.row) * ((this.hexHeight * Math.sqrt(3) / 2) + this.spacingFactor)]
+        (column - .4) * (hexHeight + spacingFactor) + (row % 2 === 0 ? hexHeight / 2 : 0),
+        (row) * ((hexHeight * Math.sqrt(3) / 2) + spacingFactor)]
     }
 
   }
@@ -168,36 +169,28 @@ export class HexTile extends LitElement {
   }
 
   getStrokeColor(){
-    if (this.hideGrid) return 'transparent';
-    if (this.selected) return 'rgba(280,280,280,.8)';
-    return !this.active ? 'gray' : 'transparent'
+    const { selected, hideGrid, active } = this;
+    if (hideGrid) return 'transparent';
+    if (selected) return 'rgba(280,280,280,.8)';
+    return !active ? 'gray' : 'transparent'
   }
 
   getStrokeWidth(){
-    if (this.selected ) {
+    const {selected, active} = this;
+    if (selected ) {
       return '5px';
     }
-
-    if(this.active && !this.selected){
+    if(active && !selected){
       return '0px';
     }
-
     return '2px';
 
   }
 
-  fireClick(event){
-
-    const options = {
-      detail: { metakey: event.metaKey },
-      bubbles: true,
-      composed: true
-    };
-    this.dispatchEvent(new CustomEvent('tileClick', options));
-  }
-
   renderPonts(){
-    if ((this.currentType === TileType.Pointed && this.type !== TileType.Flat) || (this.currentType === TileType.Flat && this.type === TileType.Pointed) || (this.currentType === TileType.Pointed && this.type === TileType.Pointed) ){
+    const { currentType, type , active } = this;
+    if ((active === true && type === TileType.Pointed)
+      || (!active && currentType === TileType.Pointed)){
 
       return svg`<g class="shadows">
           <path class="shad1" d="M86,24.9L43,49.7l43,24.9V24.9z"></path>
@@ -213,22 +206,20 @@ export class HexTile extends LitElement {
   }
 
   render() {
+    const { color, active } = this;
       return html`
       <svg viewBox="0 0 86 100">
         <path
           class="hex"
-          fill="${ this.active ? this.color : 'transparent'}"
+          fill="${ active ? color : 'transparent'}"
           stroke="${this.getStrokeColor()}"
           stroke-width="${this.getStrokeWidth()}"
-          @click=${this.fireClick}
           d="M86,24.9v49.7L43,99.4L0,74.6V24.9L43,0L86,24.9z">
         </path>
         ${this.renderPonts()}
 
     </svg>
     `
-
-
   }
 }
 
