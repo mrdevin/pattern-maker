@@ -37,10 +37,10 @@ export declare class PatternMaker extends LitElement {
     firstUpdated(): void;
     updateDimensions(): void;
     disableScroll(event: any): void;
-    enableScroll(event: any): void;
+    enableScroll(): void;
     wheelHandler(event: any): void;
     pinchHandler(event: any): void;
-    updateScale(event: any, marker: any): void;
+    updateScale(_event: any, marker: any): void;
     setColor(colorPosition: number): void;
     updateType(event: any): void;
     toggleGridSetting(): void;

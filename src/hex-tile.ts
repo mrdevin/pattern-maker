@@ -1,5 +1,5 @@
 import { css, LitElement, html, svg } from 'lit'
-import { customElement, property, state } from 'lit/decorators.js'
+import { customElement, property } from 'lit/decorators.js'
 export enum TileType {
   Pointed = "pointed",
   Flat = "flat"
