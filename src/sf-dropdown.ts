@@ -82,7 +82,11 @@ export class SfDropdown extends LitElement {
   render() {
     return html`
       <button @click="${this.toggleDD}" class="dropbtn">
-        <svg style="border-color:${this.btnColor}" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+        <svg
+          style="border-color:${this.btnColor}"
+          version="1.1"
+          xmlns="http://www.w3.org/2000/svg"
+          xmlns:xlink="http://www.w3.org/1999/xlink"
           viewBox="0 0 850.4 850.4" style="enable-background:new 0 0 850.4 850.4;" xml:space="preserve"
           >
           <style type="text/css">
