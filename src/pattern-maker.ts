@@ -3,7 +3,6 @@ import { repeat } from 'lit/directives/repeat.js';
 import { ref, createRef } from 'lit/directives/ref.js';
 import { customElement, property, state } from 'lit/decorators.js';
 import html2canvas from 'html2canvas';
-import  Hammer  from 'hammerjs';
 import { saveAs } from 'file-saver';
 import './hex-tile';
 import  './settings-modal';
@@ -66,10 +65,6 @@ export class PatternMaker extends LitElement {
       flex-wrap: wrap;
       overflow: hidden;
       background-color: var(--highlight-color);
-    }
-
-    :host([noscroll]) main{
-      overflow: hidden;
     }
 
     .label {
@@ -223,30 +218,47 @@ export class PatternMaker extends LitElement {
   @state()
   gridType = GridType.PointedUp;
 
+  @state()
+  scaling= false;
+
+  @state()
+  panning = false;
+
+  @state()
+  MainEl;
+
+  @state()
+  PreviousTouch;
+
 
   connectedCallback() {
     super.connectedCallback()
     window.addEventListener('wheel', this.wheelHandler.bind(this));
-    window.addEventListener('keydown', this.disableScroll.bind(this));
-    window.addEventListener('keyup', this.enableScroll.bind(this));
     window.addEventListener('resize', this.updateDimensions.bind(this));
 
-    requestAnimationFrame(() => {
-      this.hammerInst = new Hammer(this.shadowRoot.querySelector('main'));
-      this.hammerInst.get('pinch').set({ enable: true });
+    requestAnimationFrame(()=>{
+      this.MainEl = this.shadowRoot.querySelector('main');
+      this.MainEl.addEventListener('touchstart', this.touchStartHandler.bind(this), false);
+      this.MainEl.addEventListener('touchmove', this.touchMoveHandler.bind(this), false);
+      this.MainEl.addEventListener('touchend', this.touchEndHandler.bind(this), false);
 
-      this.hammerInst.on('pinch', this.pinchHandler.bind(this));
-      this.hammerInst.on('pan', this.panhHandler.bind(this));
+      this.MainEl.addEventListener('mousedown', this.touchStartHandler.bind(this), false);
+      this.MainEl.addEventListener('mousemove', this.touchMoveHandler.bind(this), false);
+      this.MainEl.addEventListener('mouseup', this.touchEndHandler.bind(this), false);
     })
-
   }
 
   disconnectedCallback() {
     super.disconnectedCallback()
     window.removeEventListener('wheel', this.wheelHandler.bind(this));
-    window.removeEventListener('keydown', this.disableScroll.bind(this));
-    window.removeEventListener('keyup', this.enableScroll.bind(this));
-    window.removeEventListener('resize', this.updateDimensions.bind(this))
+    window.removeEventListener('resize', this.updateDimensions.bind(this));
+    this.MainEl.removeEventListener('touchstart', this.touchStartHandler.bind(this), false);
+    this.MainEl.removeEventListener('touchmove', this.touchMoveHandler.bind(this), false);
+    this.MainEl.removeEventListener('touchend', this.touchEndHandler.bind(this), false);
+
+    this.MainEl.removeEventListener('mousedown', this.touchStartHandler.bind(this), false);
+    this.MainEl.removeEventListener('mousemove', this.touchMoveHandler.bind(this), false);
+    this.MainEl.removeEventListener('mouseup', this.touchEndHandler.bind(this), false);
   }
 
   firstUpdated() {
@@ -263,36 +275,60 @@ export class PatternMaker extends LitElement {
       this.style.setProperty('--hex-weight', `${hexDimension.width}px`);
   }
 
-  disableScroll(event){
-    if (!event.metaKey) return;
-    this.noscroll = true;
-  }
-
-  enableScroll(){
-    let { noscroll } = this;
-    noscroll = false;
-  }
-
   wheelHandler(event){
     if (!event.metaKey) return;
 
     this.updateScale(event, event.deltaY);
   }
 
+  touchStartHandler(event){
+    event.preventDefault();
+    const { clientX, clientY } = event;
+    if (event.touches?.length === 2) {
+      this.scaling = true;
+    }
+    this.panning = true;
+    this.PreviousTouch = event.touches ? event.touches[0]: {clientX, clientY};
+  }
+
+  touchMoveHandler(event){
+    event.preventDefault();
+    const { clientX, clientY } = event;
+    if (this.scaling) {
+      this.pinchHandler(event);
+    }
+    if (this.panning){
+      this.panhHandler(event);
+      this.PreviousTouch = event.touches ? event.touches[0] : { clientX, clientY };
+    }
+  }
+
+  touchEndHandler(event){
+    event.preventDefault();
+    if (this.scaling) {
+      this.scaling = false;
+    }
+    this.panning = false;
+  }
+
   pinchHandler(event) {
 
+    event.preventDefault();
     let newScale = event.scale;
     newScale = Math.min(5, newScale); //Caps newscale at 6
-    newScale = Math.max(.6, newScale); //Sets min size to .6
-
+    newScale = Math.max(.3, newScale); //Sets min size to .6
     //Sets the new scale
     this.currentScale = newScale;
     this.style.setProperty("--grid-scale", `${this.currentScale}`);
+
   }
 
   panhHandler(event) {
-    event.target.scrollLeft = event.target.scrollLeft - ( event.deltaX /32);
-    event.target.scrollTop = event.target.scrollTop - ( event.deltaY /32);
+    let pointerObj = !!event.clientX ? event : event.touches[0];
+    let deltaX = pointerObj.clientX - this.PreviousTouch.clientX;
+    let deltaY = pointerObj.clientY - this.PreviousTouch.clientY;
+    this.MainEl.scrollLeft = this.MainEl.scrollLeft - deltaX;
+    this.MainEl.scrollTop = this.MainEl.scrollTop - deltaY;
   }
 
   updateScale(_event, marker) {
@@ -304,7 +340,7 @@ export class PatternMaker extends LitElement {
     //Calculates the new scale depending on scale and factor
     let newScale = currentScale * factor;
     newScale = Math.min(6, newScale); //Caps newscale at 6
-    newScale = Math.max(.6, newScale); //Sets min size to .6
+    newScale = Math.max(.3, newScale); //Sets min size to .6
 
     //Sets the new scale
     this.currentScale = newScale;

@@ -11,7 +11,7 @@ export declare class HexTile extends LitElement {
     static styles: import("lit").CSSResult;
     color: string;
     type: any;
-    currentType: string;
+    currentType: TileType;
     selected: boolean;
     row: number;
     column: number;
@@ -30,7 +30,6 @@ export declare class HexTile extends LitElement {
     firstUpdated(): void;
     getStrokeColor(): "transparent" | "rgba(280,280,280,.8)" | "gray";
     getStrokeWidth(): "5px" | "0px" | "2px";
-    fireClick(event: any): void;
     renderPonts(): import("lit").TemplateResult<2> | "";
     render(): import("lit").TemplateResult<1>;
 }
