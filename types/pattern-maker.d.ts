@@ -36,6 +36,7 @@ export declare class PatternMaker extends LitElement {
     hammerInst: any;
     gridType: GridType;
     scaling: boolean;
+    isScaling: boolean;
     panning: boolean;
     MainEl: any;
     PreviousTouch: any;
@@ -47,8 +48,10 @@ export declare class PatternMaker extends LitElement {
     touchStartHandler(event: any): void;
     touchMoveHandler(event: any): void;
     touchEndHandler(event: any): void;
+    setZoom(event: any): void;
+    unsetZoom(event: any): void;
     pinchHandler(event: any): void;
-    panhHandler(event: any): void;
+    panHandler(event: any): void;
     updateScale(_event: any, marker: any): void;
     setColor(colorPosition: number): void;
     updateType(event: any): void;

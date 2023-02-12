@@ -275,6 +275,8 @@ export class PatternMaker extends LitElement {
     super.disconnectedCallback()
     window.removeEventListener('wheel', this.wheelHandler.bind(this));
     window.removeEventListener('resize', this.updateDimensions.bind(this));
+    window.removeEventListener('keydown', this.setZoom.bind(this));
+    window.removeEventListener('keyup', this.unsetZoom.bind(this));
     this.MainEl.removeEventListener('touchstart', this.touchStartHandler.bind(this), false);
     this.MainEl.removeEventListener('touchmove', this.touchMoveHandler.bind(this), false);
     this.MainEl.removeEventListener('touchend', this.touchEndHandler.bind(this), false);
@@ -337,7 +339,7 @@ export class PatternMaker extends LitElement {
 
     this.isScaling = true;
   }
-  unsetZoom(event) {
+  unsetZoom(_event) {
 
     this.isScaling = false;
   }
