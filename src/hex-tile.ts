@@ -20,7 +20,7 @@ export class HexTile extends LitElement {
       --hex-left: 0px;
       --cursor-style: default;
       transform: rotate(var(--hex-rotation));
-      transition-property: transform, top, --hex-left;
+      transition-property: transform, top, left;
       transition-duration: .5s;
       transition-timing-function: linear;
       position: absolute;
@@ -31,8 +31,6 @@ export class HexTile extends LitElement {
       height: var(--hex-height);
       width: var(--hex-width);
     }
-
-
 
     :host([selected]) .hex {
       stroke-dasharray:5 3 5 3;
@@ -131,11 +129,11 @@ export class HexTile extends LitElement {
     const { hexWidth, hexHeight, spacingFactor, row, column, gridType } = this;
     if (gridType === GridType.PointedUp) {
       return [
-        (column - .4) * (hexWidth + spacingFactor) + (row % 2 === 0 ? hexWidth / 2 : 0),
+        (column) * (hexWidth + spacingFactor) + (row % 2 === 0 ? hexWidth / 2 : 0),
         (row) * ((hexWidth * Math.sqrt(3) / 2) + spacingFactor)]
     } else {
       return [
-        (column - .4) * (hexHeight + spacingFactor) + (row % 2 === 0 ? hexHeight / 2 : 0),
+        (column -  .4) * (hexHeight + spacingFactor) + (row % 2 === 0 ? hexWidth / 2 : 0),
         (row) * ((hexHeight * Math.sqrt(3) / 2) + spacingFactor)]
     }
 

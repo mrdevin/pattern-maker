@@ -49,7 +49,7 @@ export declare class PatternMaker extends LitElement {
     touchMoveHandler(event: any): void;
     touchEndHandler(event: any): void;
     setZoom(event: any): void;
-    unsetZoom(event: any): void;
+    unsetZoom(_event: any): void;
     pinchHandler(event: any): void;
     panHandler(event: any): void;
     updateScale(_event: any, marker: any): void;

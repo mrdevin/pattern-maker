@@ -339,6 +339,7 @@ export class PatternMaker extends LitElement {
 
     this.isScaling = true;
   }
+
   unsetZoom(_event) {
 
     this.isScaling = false;
@@ -361,7 +362,7 @@ export class PatternMaker extends LitElement {
 
     //Grabs all relevant values
     let currentScale = this.currentScale;
-    let factor = marker >= 0 ? .99 : 1.01;
+    let factor = marker <= 1 ? .99 : 1.01;
 
     //Calculates the new scale depending on scale and factor
     let newScale = currentScale * factor;
