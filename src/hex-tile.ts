@@ -18,6 +18,7 @@ export class HexTile extends LitElement {
       --hex-rotation: 0;
       --hex-top: 0px;
       --hex-left: 0px;
+      --cursor-style: default;
       transform: rotate(var(--hex-rotation));
       transition-property: transform, top, --hex-left;
       transition-duration: .5s;
@@ -26,10 +27,12 @@ export class HexTile extends LitElement {
       top: var(--hex-top);
       left:var(--hex-left);
       display: block;
-      cursor: default;
+      cursor: var(--cursor-style);
       height: var(--hex-height);
       width: var(--hex-width);
     }
+
+
 
     :host([selected]) .hex {
       stroke-dasharray:5 3 5 3;
@@ -37,8 +40,7 @@ export class HexTile extends LitElement {
     }
 
     svg path {
-
-      cursor: pointer;
+      cursor: var(--cursor-style);
     }
 
     .hex {

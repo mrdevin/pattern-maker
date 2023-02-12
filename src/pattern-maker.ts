@@ -32,9 +32,10 @@ export class PatternMaker extends LitElement {
       --hex-height: 55px;
       --hex-width: calc(var(--hex-height) * 1.7320508075688772 / 2);
       --grid-scale: 1;
+      --cursor-style: default;
       display: block;
       position: relative;
-
+      cursor: grab;
       max-width: calc(100vw);
       min-height: calc(100vh);
       box-sizing: border-box;
@@ -65,6 +66,18 @@ export class PatternMaker extends LitElement {
       flex-wrap: wrap;
       overflow: hidden;
       background-color: var(--highlight-color);
+    }
+
+    :host([panning]),
+    :host([panning]) hex-tile {
+      --cursor-style: grabbing;
+      cursor: grabbing !important;
+    }
+
+    :host([isscaling]),
+    :host([isscaling]) hex-tile {
+      --cursor-style: zoom-in;
+      cursor: zoom-in !important;
     }
 
     .label {
@@ -221,7 +234,10 @@ export class PatternMaker extends LitElement {
   @state()
   scaling= false;
 
-  @state()
+  @property({ type: Boolean, reflect: true })
+  isScaling = false;
+
+  @property({ type: Boolean, reflect: true })
   panning = false;
 
   @state()
@@ -235,6 +251,9 @@ export class PatternMaker extends LitElement {
     super.connectedCallback()
     window.addEventListener('wheel', this.wheelHandler.bind(this));
     window.addEventListener('resize', this.updateDimensions.bind(this));
+    window.addEventListener('keydown', this.setZoom.bind(this));
+    window.addEventListener('keyup', this.unsetZoom.bind(this));
+
 
     requestAnimationFrame(()=>{
       this.MainEl = this.shadowRoot.querySelector('main');
@@ -309,10 +328,18 @@ export class PatternMaker extends LitElement {
 
   touchEndHandler(event){
     event.preventDefault();
-    if (this.scaling) {
-      this.scaling = false;
-    }
+    this.scaling = false;
     this.panning = false;
+  }
+
+  setZoom(event){
+    if (!event.metaKey) return;
+
+    this.isScaling = true;
+  }
+  unsetZoom(event) {
+
+    this.isScaling = false;
   }
 
   pinchHandler(event) {
@@ -403,7 +430,7 @@ export class PatternMaker extends LitElement {
   }
 
   selectTile(event: any){
-
+    if (this.scaling || this.panning) return;
     const SvgElement = event.target;
     if (event.metaKey || this.shouldSelectMany){
       this.selectedTiles.push(SvgElement);
