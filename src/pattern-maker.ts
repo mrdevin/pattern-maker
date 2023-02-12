@@ -238,6 +238,10 @@ export class PatternMaker extends LitElement {
 
     requestAnimationFrame(()=>{
       this.MainEl = this.shadowRoot.querySelector('main');
+      const newScrollLeft = (this.MainEl.scrollWidth - this.MainEl.clientWidth)/2;
+      const newScrollTop = (this.MainEl.scrollHeight - this.MainEl.clientHeight)/2;
+      this.MainEl.scrollLeft = newScrollLeft;
+      this.MainEl.scrollTop = newScrollTop;
       this.MainEl.addEventListener('touchstart', this.touchStartHandler.bind(this), false);
       this.MainEl.addEventListener('touchmove', this.touchMoveHandler.bind(this), false);
       this.MainEl.addEventListener('touchend', this.touchEndHandler.bind(this), false);
@@ -298,7 +302,7 @@ export class PatternMaker extends LitElement {
       this.pinchHandler(event);
     }
     if (this.panning){
-      this.panhHandler(event);
+      this.panHandler(event);
       this.PreviousTouch = event.touches ? event.touches[0] : { clientX, clientY };
     }
   }
@@ -312,18 +316,11 @@ export class PatternMaker extends LitElement {
   }
 
   pinchHandler(event) {
-
     event.preventDefault();
-    let newScale = event.scale;
-    newScale = Math.min(5, newScale); //Caps newscale at 6
-    newScale = Math.max(.3, newScale); //Sets min size to .6
-    //Sets the new scale
-    this.currentScale = newScale;
-    this.style.setProperty("--grid-scale", `${this.currentScale}`);
-
+    this.updateScale(event, event.scale);
   }
 
-  panhHandler(event) {
+  panHandler(event) {
     let pointerObj = !!event.clientX ? event : event.touches[0];
     let deltaX = pointerObj.clientX - this.PreviousTouch.clientX;
     let deltaY = pointerObj.clientY - this.PreviousTouch.clientY;
@@ -340,7 +337,7 @@ export class PatternMaker extends LitElement {
     //Calculates the new scale depending on scale and factor
     let newScale = currentScale * factor;
     newScale = Math.min(6, newScale); //Caps newscale at 6
-    newScale = Math.max(.3, newScale); //Sets min size to .6
+    newScale = Math.max(.2, newScale); //Sets min size to .6
 
     //Sets the new scale
     this.currentScale = newScale;
